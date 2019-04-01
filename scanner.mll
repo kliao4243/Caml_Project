@@ -1,6 +1,6 @@
 (* Ocamllex scanner for MicroC *)
 
-{ open Microcparse }
+{ open Parser }
 
 let digit = ['0' - '9']
 let digits = digit+
@@ -20,6 +20,11 @@ rule token = parse
 | '/'      { DIVIDE }
 | '%'	   { MOD }
 | '='      { ASSIGN }
+| ':'      { COLON }
+| ''' 	   { APOSTROPHE }
+| '"' 	   { QUOTE }
+| "String" { STR }
+| '"' (('\\' '"'| [^'"'])* as str) '"' { SLIT(Scanf.unescaped str) }
 | "=="     { EQ }
 | "!="     { NEQ }
 | '<'      { LT }
@@ -36,7 +41,7 @@ rule token = parse
 | "return" { RETURN }
 | "int"    { INT }
 | "bool"   { BOOL }
-| "float"  { FLOAT }
+| "float"  { FLOAT } 
 | "void"   { VOID }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
