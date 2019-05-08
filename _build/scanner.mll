@@ -1,6 +1,6 @@
 (* Ocamllex scanner for MicroC *)
 
-{ open Microcparse }
+{ open Parser }
 
 let digit = ['0' - '9']
 let digits = digit+
@@ -12,6 +12,8 @@ rule token = parse
 | ')'      { RPAREN }
 | '{'      { LBRACE }
 | '}'      { RBRACE }
+| '['      { LSQUARE }
+| ']'      { RSQUARE }
 | ';'      { SEMI }
 | ','      { COMMA }
 | '+'      { PLUS }
@@ -20,6 +22,11 @@ rule token = parse
 | '/'      { DIVIDE }
 | '%'	   { MOD }
 | '='      { ASSIGN }
+| ':'      { COLON }
+| ''' 	   { APOSTROPHE }
+| '"' 	   { QUOTE }
+| "String" { STR }
+| '"' (('\\' '"'| [^'"'])* as str) '"' { SLIT(Scanf.unescaped str) }
 | "=="     { EQ }
 | "!="     { NEQ }
 | '<'      { LT }
@@ -36,10 +43,11 @@ rule token = parse
 | "return" { RETURN }
 | "int"    { INT }
 | "bool"   { BOOL }
-| "float"  { FLOAT }
+| "float"  { FLOAT } 
 | "void"   { VOID }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
+| "Array" 		{ ARRAY }
 | digits as lxm { LITERAL(int_of_string lxm) }
 | digits '.'  digit* ( ['e' 'E'] ['+' '-']? digits )? as lxm { FLIT(lxm) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*     as lxm { ID(lxm) }

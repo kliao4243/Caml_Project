@@ -41,7 +41,8 @@ let check (globals, functions) =
     in List.fold_left add_bind StringMap.empty [ ("print", Int);
 			                         ("printb", Bool);
 			                         ("printf", Float);
-			                         ("printbig", Int) ]
+			                         ("printbig", Int);
+                               ("prints", String) ]
   in
 
   (* Add function name to symbol table *)
@@ -90,11 +91,18 @@ let check (globals, functions) =
       with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
 
+     let check_list_type id = 
+       match (type_of_identifier id) with 
+          Array t -> t
+        | t -> raise (Failure ("check list type error, typ: " ^ string_of_typ t))
+    in
+
     (* Return a semantically-checked expression, i.e., with a type *)
     let rec expr = function
         Literal  l -> (Int, SLiteral l)
       | Fliteral l -> (Float, SFliteral l)
       | BoolLit l  -> (Bool, SBoolLit l)
+      | Sliteral l -> (String, SSliteral l)
       | Noexpr     -> (Void, SNoexpr)
       | Id s       -> (type_of_identifier s, SId s)
       | Assign(var, e) as ex -> 
@@ -144,6 +152,14 @@ let check (globals, functions) =
           in 
           let args' = List.map2 check_call fd.formals args
           in (fd.typ, SCall(fname, args'))
+      | ArraySize var -> 
+          (Int, SArraySize(check_list_type var, var))
+      | ArrayLit vals ->
+         let (t', _) = expr (List.hd vals) in
+         let map_func lit = expr lit in
+         let vals' = List.map map_func vals in
+         (* TODO: check that all vals are of the same type *)
+         (Array t', SArrayLit(t', vals'))
     in
 
     let check_bool_expr e = 

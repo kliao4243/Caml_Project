@@ -7,11 +7,14 @@ and sx =
     SLiteral of int
   | SFliteral of string
   | SBoolLit of bool
+  | SSliteral of string
   | SId of string
   | SBinop of sexpr * op * sexpr
   | SUnop of uop * sexpr
   | SAssign of string * sexpr
   | SCall of string * sexpr list
+  | SArrayLit of typ * sexpr list
+  | SArraySize of typ * string
   | SNoexpr
 
 type sstmt =
@@ -37,6 +40,7 @@ type sprogram = bind list * sfunc_decl list
 let rec string_of_sexpr (t, e) =
   "(" ^ string_of_typ t ^ " : " ^ (match e with
     SLiteral(l) -> string_of_int l
+  | SSliteral(l) -> l
   | SBoolLit(true) -> "true"
   | SBoolLit(false) -> "false"
   | SFliteral(l) -> l
@@ -47,6 +51,8 @@ let rec string_of_sexpr (t, e) =
   | SAssign(v, e) -> v ^ " = " ^ string_of_sexpr e
   | SCall(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
+  | SArrayLit(_) -> "array_literal"
+  | SArraySize(_, id) -> "list_size " ^ id
   | SNoexpr -> ""
 				  ) ^ ")"				     
 
