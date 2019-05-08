@@ -121,16 +121,16 @@ let translate (globals, functions) =
      StringMap.add def_name def m in 
   List.fold_left array_size_ty StringMap.empty [ A.Bool; A.Int; A.Float; A.String ] in
 
-  let init_list builder list_ptr list_type = 
+  let init_array builder array_ptr array_type = 
     (* initialize size to 0 *)
-    let sizePtrPtr = L.build_struct_gep list_ptr 0 "array_size_ptr" builder in 
+    let sizePtrPtr = L.build_struct_gep array_ptr 0 "array_size_ptr" builder in 
        let sizePtr = L.build_alloca i32_t "array_size" builder in
        let _ = L.build_store (L.const_int i32_t 0) sizePtr builder in
        ignore(L.build_store sizePtr sizePtrPtr builder);
     (* initialize array *)
-    let list_array_ptr = L.build_struct_gep list_ptr 1 "list.arry" builder in 
+    let list_array_ptr = L.build_struct_gep array_ptr 1 "list.arry" builder in 
      (* TODO: allocate nothing and have list grow dynamically as necessary when pushing into the list *)
-      let p = L.build_array_alloca (ltype_of_typ list_type) (L.const_int i32_t 1028) "p" builder in
+      let p = L.build_array_alloca (ltype_of_typ array_type) (L.const_int i32_t 1028) "p" builder in
       ignore(L.build_store p list_array_ptr builder);
   in
   (* Define each function (arguments and return type) so we can 
@@ -191,7 +191,7 @@ let translate (globals, functions) =
       | SArrayLit (list_type, literals) ->
        let ltype = (ltype_of_typ list_type) in
        let new_list_ptr = L.build_alloca (list_t ltype) "new_list_ptr" builder in
-       let _ = init_list builder new_list_ptr list_type in
+       let _ = init_array builder new_list_ptr list_type in
        let map_func literal = 
           ignore(L.build_call (StringMap.find (type_str list_type) list_push) [| new_list_ptr; (expr builder literal) |] "" builder);
        in
