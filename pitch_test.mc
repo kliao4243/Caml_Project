@@ -1,6 +1,6 @@
 int main(){
 Pitch a;
-a = 7@+1;
+a = 1#1;
 printp(a);  
 return 0;
 }

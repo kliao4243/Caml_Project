@@ -48,7 +48,7 @@ rule token = parse
 | "false"  { BLIT(false) }
 | digits as lxm { LITERAL(int_of_string lxm) }
 | digits '.'  digit* ( ['e' 'E'] ['+' '-']? digits )? as lxm { FLIT(lxm) }
-| ['1'-'7'] ('b'|'#'|'@' ['+' '-'] ['1'-'5'])? as lxm { PLIT(lxm) }
+| ['1'-'7'] ['b' '#' '^'] ['0'-'8'] as lxm { PLIT(lxm) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*     as lxm { ID(lxm) }
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
