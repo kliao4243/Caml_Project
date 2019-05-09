@@ -82,7 +82,7 @@ stmt:
 	| FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
 											  { For($3, $5, $7, $9)   }
 	| WHILE LPAREN expr RPAREN stmt           { While($3, $5)         }
-
+	
 expr_opt:
 		/* nothing */ { Noexpr }
 	| expr          { $1 }
@@ -115,6 +115,7 @@ expr:
 	| ID LPAREN args_opt RPAREN { Call($1, $3)  }
 	| LPAREN expr RPAREN { $2                   }
 	| LSQUARE args_opt RSQUARE   { ArrayLit($2) }
+	| ID LSQUARE expr RSQUARE   { ArrayAccess($1, $3) }
 
 args_opt:
 		/* nothing */ { [] }

@@ -16,6 +16,7 @@ type expr =
   | Sliteral of string
   | ArrayLit of expr list
   | ArraySize of string
+  | ArrayAccess of string * expr
   | Id of string
   | Binop of expr * op * expr
   | Unop of uop * expr

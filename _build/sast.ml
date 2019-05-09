@@ -13,7 +13,8 @@ and sx =
   | SUnop of uop * sexpr
   | SAssign of string * sexpr
   | SCall of string * sexpr list
-  | SArrayLit of typ * sexpr list
+  | SArrayLit of sexpr list
+  | SArrayAccess of typ * string * sexpr
   | SArraySize of typ * string
   | SNoexpr
 

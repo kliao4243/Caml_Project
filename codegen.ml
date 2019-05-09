@@ -34,7 +34,6 @@ let translate (globals, functions) =
   and void_t     = L.void_type   context in
   
   let str_t      = L.pointer_type i8_t   
-  and list_t t   = L.struct_type context [| L.pointer_type (L.i32_type context); (L.pointer_type t) |]
   in
   (* Return the LLVM type for a MicroC type *)
   let rec ltype_of_typ = function
@@ -43,7 +42,7 @@ let translate (globals, functions) =
     | A.Float  -> float_t
     | A.String -> str_t
     | A.Void   -> void_t
-    | A.Array t -> list_t (ltype_of_typ t)
+    | A.Array array_typ -> L.pointer_type (ltype_of_typ array_typ) 
   in
 
   let type_str t = match t with
@@ -78,61 +77,6 @@ let translate (globals, functions) =
   let prints_func : L.llvalue = 
       L.declare_function "puts" prints_t the_module in
   
-  (* void list_push(list, ltype value) *)
-  let list_push : L.llvalue StringMap.t = 
-    let list_push_ty m typ =
-     let ltype = (ltype_of_typ typ) in 
-     let def_name = (type_str typ) in
-     let def = L.define_function ("list_push" ^ def_name) (L.function_type void_t [| L.pointer_type (list_t ltype); ltype |]) the_module in
-     let build = L.builder_at_end context (L.entry_block def) in
-     let list_ptr = L.build_alloca (L.pointer_type (list_t ltype)) "list_ptr_alloc" build in
-     ignore(L.build_store (L.param def 0) list_ptr build);
-     let valPtr = L.build_alloca ltype "val_alloc" build in
-     ignore(L.build_store (L.param def 1) valPtr build);
-     let list_load = L.build_load list_ptr "list_load" build in
-     let list_array_ptr = L.build_struct_gep list_load 1 "list_array_ptr" build in
-     let list_array_load = L.build_load list_array_ptr "list_array_load" build in
-     let array_size_ptr_ptr = L.build_struct_gep list_load 0 "array_size_ptr_ptr" build in 
-     let array_size_ptr = L.build_load array_size_ptr_ptr "array_size_ptr" build in
-     let array_size = L.build_load array_size_ptr "array_size" build in
-     let next_index = array_size in
-     let next_element_ptr = L.build_gep list_array_load [| next_index |] "list_arry_next_element_ptr" build in
-     let next_size = L.build_add array_size (L.const_int i32_t 1) "inc_size" build in
-     let _ = L.build_store next_size array_size_ptr build in
-     let _ = L.build_store (L.build_load valPtr "val" build) next_element_ptr build in
-     let _ = L.build_ret_void build in
-     StringMap.add def_name def m in 
-  List.fold_left list_push_ty StringMap.empty [ A.Bool; A.Int; A.Float; A.String ] in
-
-  (* i32_t array_size(list a) *)
-  let array_size : L.llvalue StringMap.t = 
-    let array_size_ty m typ =
-     let ltype = (ltype_of_typ typ) in 
-     let def_name = (type_str typ) in
-     let def = L.define_function ("array_size" ^ def_name) (L.function_type i32_t [| L.pointer_type (list_t ltype) |]) the_module in
-     let build = L.builder_at_end context (L.entry_block def) in
-     let list_ptr = L.build_alloca (L.pointer_type (list_t ltype)) "list_ptr_alloc" build in
-     ignore(L.build_store (L.param def 0) list_ptr build);
-     let list_load = L.build_load list_ptr "list_load" build in
-     let array_size_ptr_ptr = L.build_struct_gep list_load 0 "array_size_ptr_ptr" build in 
-     let array_size_ptr = L.build_load array_size_ptr_ptr "array_size_ptr" build in
-     let array_size = L.build_load array_size_ptr "array_size" build in
-     ignore(L.build_ret array_size build);
-     StringMap.add def_name def m in 
-  List.fold_left array_size_ty StringMap.empty [ A.Bool; A.Int; A.Float; A.String ] in
-
-  let init_array builder array_ptr array_type = 
-    (* initialize size to 0 *)
-    let sizePtrPtr = L.build_struct_gep array_ptr 0 "array_size_ptr" builder in 
-       let sizePtr = L.build_alloca i32_t "array_size" builder in
-       let _ = L.build_store (L.const_int i32_t 0) sizePtr builder in
-       ignore(L.build_store sizePtr sizePtrPtr builder);
-    (* initialize array *)
-    let list_array_ptr = L.build_struct_gep array_ptr 1 "list.arry" builder in 
-     (* TODO: allocate nothing and have list grow dynamically as necessary when pushing into the list *)
-      let p = L.build_array_alloca (ltype_of_typ array_type) (L.const_int i32_t 1028) "p" builder in
-      ignore(L.build_store p list_array_ptr builder);
-  in
   (* Define each function (arguments and return type) so we can 
      call it even before we've created its body *)
   let function_decls : (L.llvalue * sfunc_decl) StringMap.t =
@@ -186,17 +130,13 @@ let translate (globals, functions) =
       | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
       | SFliteral l -> L.const_float_of_string float_t l
       | SSliteral s -> L.build_global_stringptr s "123" builder
-      | SArraySize (list_type, id) -> 
-        L.build_call ((StringMap.find (type_str list_type)) array_size) [| (lookup id) |] "array_size" builder
-      | SArrayLit (list_type, literals) ->
-       let ltype = (ltype_of_typ list_type) in
-       let new_list_ptr = L.build_alloca (list_t ltype) "new_list_ptr" builder in
-       let _ = init_array builder new_list_ptr list_type in
-       let map_func literal = 
-          ignore(L.build_call (StringMap.find (type_str list_type) list_push) [| new_list_ptr; (expr builder literal) |] "" builder);
-       in
-       let _ = List.rev (List.map map_func literals) in
-       L.build_load new_list_ptr "new_list" builder    
+      | SArrayLit (sexpr_list) ->
+        let all_elem = List.map (fun e ->
+            expr builder e) sexpr_list in
+        let llarray_t = L.type_of (List.hd all_elem) in
+        let num_elems = List.length sexpr_list in
+        L.build_array_alloca llarray_t (L.const_int i32_t num_elems) "" builder 
+        
       | SNoexpr     -> L.const_int i32_t 0
       | SId s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in

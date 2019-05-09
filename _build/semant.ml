@@ -9,7 +9,6 @@ module StringMap = Map.Make(String)
    throws an exception if something is wrong.
 
    Check each global variable, then check each function *)
-
 let check (globals, functions) =
 
   (* Verify a list of bindings has no void types or duplicate names *)
@@ -159,7 +158,15 @@ let check (globals, functions) =
          let map_func lit = expr lit in
          let vals' = List.map map_func vals in
          (* TODO: check that all vals are of the same type *)
-         (Array t', SArrayLit(t', vals'))
+         (Array t', SArrayLit(vals'))
+      | ArrayAccess (var, e) -> 
+         let (t, e') = expr e in
+         let ty = match t with 
+             Int -> Int
+             | _ -> raise (Failure ("list_get index must be integer, not " ^ string_of_typ t)) 
+         in let list_type = check_list_type var
+         in (list_type, SArrayAccess(list_type, var, (ty, e')))
+      
     in
 
     let check_bool_expr e = 
