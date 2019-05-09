@@ -1,1 +1,1 @@
-scanner.ml: Char Lexing Microcparse
+scanner.ml: Char Lexing Parser Scanf

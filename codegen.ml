@@ -31,6 +31,7 @@ let translate (globals, functions) =
   and i8_t       = L.i8_type     context
   and i1_t       = L.i1_type     context
   and float_t    = L.double_type context
+  and pitch_t    = L.pointer_type (L.i8_type context)
   and void_t     = L.void_type   context in
   let str_t      = L.pointer_type i8_t in
   (* Return the LLVM type for a MicroC type *)
@@ -40,6 +41,7 @@ let translate (globals, functions) =
     | A.Float  -> float_t
     | A.String -> str_t
     | A.Void   -> void_t
+    | A.Pitch -> pitch_t
   in
 
   (* Create a map of global variables after creating each *)
@@ -66,6 +68,11 @@ let translate (globals, functions) =
   let prints_func : L.llvalue = 
       L.declare_function "puts" prints_t the_module in
 
+  let printp_t : L.lltype = 
+      L.var_arg_function_type pitch_t [| str_t |] in
+  let printp_func : L.llvalue = 
+      L.declare_function "printp" printp_t the_module in
+
   (* Define each function (arguments and return type) so we can 
      call it even before we've created its body *)
   let function_decls : (L.llvalue * sfunc_decl) StringMap.t =
@@ -83,6 +90,7 @@ let translate (globals, functions) =
     let builder = L.builder_at_end context (L.entry_block the_function) in
 
     let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder
+    and pitch_format_str = L.build_global_stringptr "%s\n" "fmt" builder
     and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder in
 
     (* Construct the function's "locals": formal arguments and locally
@@ -119,6 +127,7 @@ let translate (globals, functions) =
       | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
       | SFliteral l -> L.const_float_of_string float_t l
       | SSliteral s -> L.build_global_stringptr s "123" builder
+      | SPliteral p -> L.build_global_stringptr p "4#" builder
       | SNoexpr     -> L.const_int i32_t 0
       | SId s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in
@@ -174,6 +183,9 @@ let translate (globals, functions) =
 	  L.build_call printf_func [| float_format_str ; (expr builder e) |]
 	    "printf" builder
       | SCall ("prints", [e]) -> 
+    L.build_call printp_func [| pitch_format_str ; (expr builder e) |]
+      "printp" builder
+      | SCall ("printp", [e]) ->
     L.build_call prints_func [| (expr builder e) |]
       "puts" builder
       | SCall (f, args) ->
