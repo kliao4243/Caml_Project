@@ -19,7 +19,12 @@ open Sast
 module StringMap = Map.Make(String)
 
 (* translate : Sast.program -> Llvm.module *)
-let translate (globals, functions) =
+
+
+let translate program =
+  let globals = program.sglobals
+  and functions = program.sfunctions
+  in
   let context    = L.global_context () in
   
   (* Create the LLVM compilation module into which
@@ -34,15 +39,18 @@ let translate (globals, functions) =
   and pitch_t    = L.pointer_type (L.i8_type context)
   and void_t     = L.void_type   context in
   let str_t      = L.pointer_type i8_t in
+  let struct_t n = L.named_struct_type context n in
   (* Return the LLVM type for a MicroC type *)
-  let ltype_of_typ = function
+  let rec ltype_of_typ = function
       A.Int    -> i32_t
     | A.Bool   -> i1_t
     | A.Float  -> float_t
     | A.String -> str_t
     | A.Void   -> void_t
     | A.Pitch -> pitch_t
+    | A.Struct n -> struct_t n
   in
+
 
   (* Create a map of global variables after creating each *)
   let global_vars : L.llvalue StringMap.t =
