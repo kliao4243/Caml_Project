@@ -2,6 +2,8 @@ type token =
   | QUOTE
   | APOSTROPHE
   | COLON
+  | LSQUARE
+  | RSQUARE
   | SEMI
   | LPAREN
   | RPAREN
@@ -43,6 +45,7 @@ type token =
   | SLIT of (string)
   | PLIT of (string)
   | STLIT of (string)
+  | ARRAY
   | EOF
 
 val program :

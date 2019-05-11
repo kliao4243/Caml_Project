@@ -12,6 +12,9 @@ module StringMap = Map.Make(String)
 
 let check program =
 
+  let globals = program.globals
+  and functions = program.functions
+  in
   (* Verify a list of bindings has no void types or duplicate names *)
   let check_binds (kind : string) (binds : bind list) =
     List.iter (function
@@ -109,6 +112,7 @@ let check program =
       with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
 
+
     (* Return a semantically-checked expression, i.e., with a type *)
     let rec expr = function
         Literal  l -> (Int, SLiteral l)
@@ -175,6 +179,21 @@ let check program =
           (try let tem = StringMap.find m members in 
            (tem, SSliteral(m)) 
            with Not_found -> raise (Failure ("illegal member " ^ m ^ " of struct " ^ string_of_expr sacc)))
+      | ArrayLit vals ->
+         let (t', _) = expr (List.hd vals) in
+         let map_func lit = expr lit in
+         let vals' = List.map map_func vals in
+         (* TODO: check that all vals are of the same type *)
+         (Array t', SArrayLit(vals'))
+      | ArrayAccess (var, idx) ->   
+        let (t1, se1) = expr var in
+        let (t2, se2) = expr idx in
+        let t3 = match t1 with 
+            Array(t) -> t
+          | _ -> raise (Failure ("not an array"))
+        in
+        if t2 = Int then (t3, SArrayAccess((t1, se1), (t2, se2)))
+        else raise (Failure ("can't access array with non-integer type"))      
     in
 
     let check_bool_expr e = 
