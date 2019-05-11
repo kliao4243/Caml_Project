@@ -61,19 +61,10 @@ let translate (globals, functions) =
   let printf_func : L.llvalue = 
       L.declare_function "printf" printf_t the_module in
 
-  let printbig_t : L.lltype =
-      L.function_type i32_t [| i32_t |] in
-  let printbig_func : L.llvalue =
-      L.declare_function "printbig" printbig_t the_module in
-
   let prints_t : L.lltype = 
       L.var_arg_function_type str_t [| str_t |] in
   let prints_func : L.llvalue = 
       L.declare_function "puts" prints_t the_module in
-  let printp_t : L.lltype = 
-      L.var_arg_function_type pitch_t [| str_t |] in
-  let printp_func : L.llvalue = 
-      L.declare_function "printp" printp_t the_module in
 
   (* Define each function (arguments and return type) so we can 
      call it even before we've created its body *)
@@ -92,7 +83,6 @@ let translate (globals, functions) =
     let builder = L.builder_at_end context (L.entry_block the_function) in
 
     let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder
-    and pitch_format_str = L.build_global_stringptr "%s\n" "fmt" builder
     and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder in
 
     (* Construct the function's "locals": formal arguments and locally
@@ -199,20 +189,13 @@ let translate (globals, functions) =
 	    A.Neg when t = A.Float -> L.build_fneg 
 	  | A.Neg                  -> L.build_neg
           | A.Not                  -> L.build_not) e' "tmp" builder
-      | SCall ("print", [e]) | SCall ("printb", [e]) ->
-	  L.build_call printf_func [| int_format_str ; (expr builder e) |]
-	    "printf" builder
-      | SCall ("printbig", [e]) ->
-	  L.build_call printbig_func [| (expr builder e) |] "printbig" builder
-      | SCall ("printf", [e]) -> 
-	  L.build_call printf_func [| float_format_str ; (expr builder e) |]
-	    "printf" builder
-      | SCall ("prints", [e]) -> 
-    L.build_call printp_func [| pitch_format_str ; (expr builder e) |]
-      "printp" builder
-      | SCall ("printp", [e]) ->
-    L.build_call prints_func [| (expr builder e) |]
-      "puts" builder
+      | SCall ("print", [t,e]) | SCall ("printb", [t,e]) ->
+				(match t with 
+				A.Int -> L.build_call printf_func [| int_format_str ; (expr builder (t,e)) |] "printf" builder
+				| A.String -> L.build_call prints_func [| (expr builder (t,e)) |] "prints" builder
+				| A.Float -> L.build_call printf_func [| float_format_str ; (expr builder (t,e)) |] "printf" builder
+				| A.Pitch -> L.build_call prints_func [|(expr builder (t,e)) |] "prints" builder
+				| _ -> raise (Failure (A.string_of_typ t)))
       | SCall (f, args) ->
          let (fdef, fdecl) = StringMap.find f function_decls in
 	 let llargs = List.rev (List.map (expr builder) (List.rev args)) in

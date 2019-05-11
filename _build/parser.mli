@@ -2,13 +2,13 @@ type token =
   | QUOTE
   | APOSTROPHE
   | COLON
+  | LSQUARE
+  | RSQUARE
   | SEMI
   | LPAREN
   | RPAREN
   | LBRACE
   | RBRACE
-  | LSQUARE
-  | RSQUARE
   | COMMA
   | PLUS
   | MINUS

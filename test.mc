@@ -1,8 +1,13 @@
 int main()
 {
-  Array<int> a;
+  String c;
   int b;
-  b = 1+2*3;
+  Pitch p;
+  b = 1;
+  p = 1#1;
+  c = "hello";
+  print(p);
+  print(c);
   print(b);
   return 0;
 }

@@ -135,19 +135,23 @@ let check (globals, functions) =
                        string_of_typ t2 ^ " in " ^ string_of_expr e))
           in (ty, SBinop((t1, e1'), op, (t2, e2')))
       | Call(fname, args) as call -> 
-          let fd = find_func fname in
-          let param_length = List.length fd.formals in
-          if List.length args != param_length then
-            raise (Failure ("expecting " ^ string_of_int param_length ^ 
-                            " arguments in " ^ string_of_expr call))
-          else let check_call (ft, _) e = 
-            let (et, e') = expr e in 
-            let err = "illegal argument found " ^ string_of_typ et ^
-              " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e
-            in (check_assign ft et err, e')
-          in 
-          let args' = List.map2 check_call fd.formals args
-          in (fd.typ, SCall(fname, args'))
+          if fname="print" then 
+            let args' = List.map expr args in
+            (Int, SCall (fname, args'))
+          else
+            let fd = find_func fname in
+            let param_length = List.length fd.formals in
+            if List.length args != param_length then
+              raise (Failure ("expecting " ^ string_of_int param_length ^ 
+                              " arguments in " ^ string_of_expr call))
+            else let check_call (ft, _) e = 
+              let (et, e') = expr e in 
+              let err = "illegal argument found " ^ string_of_typ et ^
+                " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e
+              in (check_assign ft et err, e')
+            in 
+            let args' = List.map2 check_call fd.formals args
+            in (fd.typ, SCall(fname, args'))
       | ArrayLit vals ->
          let (t', _) = expr (List.hd vals) in
          let map_func lit = expr lit in
