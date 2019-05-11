@@ -41,12 +41,8 @@ let check (globals, functions) =
 			                         ("printb", Bool);
 			                         ("printf", Float);
 			                         ("printbig", Int);
-<<<<<<< HEAD
-                               ("prints", String) ]
-=======
                                ("prints", String);
                                ("printp", Pitch); ]
->>>>>>> 1e06a6d08ee4328c25e27a278fddf5eedc70f469
   in
 
   (* Add function name to symbol table *)
@@ -102,10 +98,7 @@ let check (globals, functions) =
       | Fliteral l -> (Float, SFliteral l)
       | BoolLit l  -> (Bool, SBoolLit l)
       | Sliteral l -> (String, SSliteral l)
-<<<<<<< HEAD
-=======
       | Pliteral l -> (Pitch, SPliteral l)
->>>>>>> 1e06a6d08ee4328c25e27a278fddf5eedc70f469
       | Noexpr     -> (Void, SNoexpr)
       | Id s       -> (type_of_identifier s, SId s)
       | Assign(var, e) as ex -> 

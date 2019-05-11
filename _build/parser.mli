@@ -7,11 +7,8 @@ type token =
   | RPAREN
   | LBRACE
   | RBRACE
-<<<<<<< HEAD
   | LSQUARE
   | RSQUARE
-=======
->>>>>>> 1e06a6d08ee4328c25e27a278fddf5eedc70f469
   | COMMA
   | PLUS
   | MINUS
@@ -38,20 +35,14 @@ type token =
   | FLOAT
   | VOID
   | STR
-<<<<<<< HEAD
-=======
   | PITCH
->>>>>>> 1e06a6d08ee4328c25e27a278fddf5eedc70f469
   | LITERAL of (int)
   | BLIT of (bool)
   | ID of (string)
   | FLIT of (string)
   | SLIT of (string)
-<<<<<<< HEAD
-  | ARRAY
-=======
   | PLIT of (string)
->>>>>>> 1e06a6d08ee4328c25e27a278fddf5eedc70f469
+  | ARRAY
   | EOF
 
 val program :

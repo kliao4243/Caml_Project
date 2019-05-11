@@ -8,10 +8,7 @@ and sx =
   | SFliteral of string
   | SBoolLit of bool
   | SSliteral of string
-<<<<<<< HEAD
-=======
   | SPliteral of string
->>>>>>> 1e06a6d08ee4328c25e27a278fddf5eedc70f469
   | SId of string
   | SBinop of sexpr * op * sexpr
   | SUnop of uop * sexpr

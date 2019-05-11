@@ -25,10 +25,6 @@ rule token = parse
 | ':'      { COLON }
 | ''' 	   { APOSTROPHE }
 | '"' 	   { QUOTE }
-<<<<<<< HEAD
-| "String" { STR }
-=======
->>>>>>> 1e06a6d08ee4328c25e27a278fddf5eedc70f469
 | '"' (('\\' '"'| [^'"'])* as str) '"' { SLIT(Scanf.unescaped str) }
 | "=="     { EQ }
 | "!="     { NEQ }
@@ -47,11 +43,8 @@ rule token = parse
 | "int"    { INT }
 | "bool"   { BOOL }
 | "float"  { FLOAT } 
-<<<<<<< HEAD
-=======
 | "String" { STR }
 | "Pitch"  { PITCH }
->>>>>>> 1e06a6d08ee4328c25e27a278fddf5eedc70f469
 | "void"   { VOID }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
