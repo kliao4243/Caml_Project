@@ -1,1 +1,1 @@
-microc.ml: Arg Ast Codegen Lexing Llvm Llvm_analysis Parser Sast Scanner Semant
+microc.ml: Arg Ast Lexing Parser Sast Scanner Semant

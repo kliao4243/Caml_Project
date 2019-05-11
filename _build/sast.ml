@@ -14,6 +14,7 @@ and sx =
   | SUnop of uop * sexpr
   | SAssign of string * sexpr
   | SCall of string * sexpr list
+  | SStructAccess of sexpr * string
   | SNoexpr
 
 type sstmt =
@@ -32,7 +33,16 @@ type sfunc_decl = {
     sbody : sstmt list;
   }
 
-type sprogram = bind list * sfunc_decl list
+type sstruct_decl = {
+    smembers: bind list;
+    sstruct_name: string;
+  }
+
+type sprogram = {
+    sglobals: bind list;
+    sfunctions: sfunc_decl list;
+    sstructs: sstruct_decl list;
+}
 
 (* Pretty-printing functions *)
 
@@ -51,6 +61,8 @@ let rec string_of_sexpr (t, e) =
   | SAssign(v, e) -> v ^ " = " ^ string_of_sexpr e
   | SCall(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
+  | SStructAccess(s, n) ->
+    (string_of_sexpr s) ^ "." ^ n
   | SNoexpr -> ""
 				  ) ^ ")"				     
 
@@ -76,6 +88,13 @@ let string_of_sfdecl fdecl =
   String.concat "" (List.map string_of_sstmt fdecl.sbody) ^
   "}\n"
 
-let string_of_sprogram (vars, funcs) =
-  String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
-  String.concat "\n" (List.map string_of_sfdecl funcs)
+let string_of_ssdecl sdecl =
+  "struct " ^ sdecl.sstruct_name ^ "\n" ^
+  "{\n" ^ 
+  String.concat "" (List.map string_of_vdecl sdecl.smembers) ^
+  "}\n"
+
+let string_of_sprogram sprogram =
+  String.concat "" (List.map string_of_vdecl sprogram.sglobals) ^ "\n" ^
+  String.concat "\n" (List.map string_of_sfdecl sprogram.sfunctions) ^
+  String.concat "\n" (List.map string_of_ssdecl sprogram.sstructs)

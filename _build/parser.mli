@@ -23,6 +23,7 @@ type token =
   | GEQ
   | AND
   | OR
+  | DOT
   | RETURN
   | IF
   | ELSE
@@ -34,12 +35,14 @@ type token =
   | VOID
   | STR
   | PITCH
+  | STRUCT
   | LITERAL of (int)
   | BLIT of (bool)
   | ID of (string)
   | FLIT of (string)
   | SLIT of (string)
   | PLIT of (string)
+  | STLIT of (string)
   | EOF
 
 val program :

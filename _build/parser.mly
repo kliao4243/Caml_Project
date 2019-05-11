@@ -5,11 +5,11 @@ open Ast
 %}
 %token QUOTE APOSTROPHE COLON
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE MOD ASSIGN
-%token NOT EQ NEQ LT LEQ GT GEQ AND OR
-%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID STR PITCH
+%token NOT EQ NEQ LT LEQ GT GEQ AND OR DOT
+%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID STR PITCH STRUCT
 %token <int> LITERAL
 %token <bool> BLIT
-%token <string> ID FLIT SLIT PLIT
+%token <string> ID FLIT SLIT PLIT STLIT
 %token EOF
 
 %start program
@@ -32,9 +32,17 @@ program:
   decls EOF { $1 }
 
 decls:
-   /* nothing */ { ([], [])               }
- | decls vdecl { (($2 :: fst $1), snd $1) }
- | decls fdecl { (fst $1, ($2 :: snd $1)) }
+   /* nothing */ { {globals=[]; functions=[]; structs=[]} }
+ | decls vdecl { {globals = ($2 :: $1.globals); functions = $1.functions; structs = $1.structs} }
+ | decls fdecl { {globals = $1.globals; functions = ($2 :: $1.functions); structs = $1.structs} }
+ | decls sdecl { {globals = $1.globals; functions = $1.functions; structs = ($2 :: $1.structs)} }
+
+vdecl:
+   typ ID SEMI { ($1, $2) }
+
+vdecl_list:
+    /* nothing */    { [] }
+  | vdecl_list vdecl { $2 :: $1 }
 
 fdecl:
    typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
@@ -43,6 +51,13 @@ fdecl:
 	 formals = List.rev $4;
 	 locals = List.rev $7;
 	 body = List.rev $8 } }
+
+sdecl:
+  STRUCT STLIT LBRACE vdecl_list RBRACE SEMI
+    {{
+      struct_name = $2;
+      members = $4;
+    }}
 
 formals_opt:
     /* nothing */ { [] }
@@ -59,13 +74,10 @@ typ:
   | VOID  { Void  }
   | STR   { String }
   | PITCH { Pitch }
+  | STLIT { Struct($1) }
 
-vdecl_list:
-    /* nothing */    { [] }
-  | vdecl_list vdecl { $2 :: $1 }
 
-vdecl:
-   typ ID SEMI { ($1, $2) }
+
 
 stmt_list:
     /* nothing */  { [] }
@@ -107,6 +119,7 @@ expr:
   | expr GEQ    expr { Binop($1, Geq,   $3)   }
   | expr AND    expr { Binop($1, And,   $3)   }
   | expr OR     expr { Binop($1, Or,    $3)   }
+  | expr DOT ID      { StructAccess($1, $3) }
   | MINUS expr %prec NOT { Unop(Neg, $2)      }
   | NOT expr         { Unop(Not, $2)          }
   | ID ASSIGN expr   { Assign($1, $3)         }

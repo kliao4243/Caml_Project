@@ -34,15 +34,30 @@ let translate (globals, functions) =
   and pitch_t    = L.pointer_type (L.i8_type context)
   and void_t     = L.void_type   context in
   let str_t      = L.pointer_type i8_t in
+  and struct_t n = L.named_struct_type context n in
   (* Return the LLVM type for a MicroC type *)
-  let ltype_of_typ = function
+  let rec ltype_of_typ = function
       A.Int    -> i32_t
     | A.Bool   -> i1_t
     | A.Float  -> float_t
     | A.String -> str_t
     | A.Void   -> void_t
     | A.Pitch -> pitch_t
+    | A.Struct n -> struct_t n
   in
+
+  let structs =
+    let struct_decl m sdecl =
+      let name = sdecl.A.struct_name
+      and member_types = Array.of_list (List.map (fun (t,_,_,_) -> ltype_of_typ t) sdecl.A.members)
+      in let stype = L.struct_type context member_types in
+      StringMap.add name (stype, sdecl.A.members) m in
+    List.fold_left struct_decl StringMap.empty program.structs
+  in
+
+  let struct_lookup n = try StringMap.find n structs
+    with Not_found -> raise (Failure ("struct " ^ n ^ " not found")) in
+  (* END structs *)
 
   (* Create a map of global variables after creating each *)
   let global_vars : L.llvalue StringMap.t =
