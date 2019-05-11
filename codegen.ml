@@ -31,6 +31,7 @@ let translate (globals, functions) =
   and i8_t       = L.i8_type     context
   and i1_t       = L.i1_type     context
   and float_t    = L.double_type context
+  and pitch_t    = L.pointer_type (L.i8_type context)
   and void_t     = L.void_type   context in
   
   let str_t      = L.pointer_type i8_t
@@ -42,6 +43,7 @@ let translate (globals, functions) =
     | A.Float  -> float_t
     | A.String -> str_t
     | A.Void   -> void_t
+    | A.Pitch -> pitch_t
     | A.Array array_typ -> L.pointer_type (ltype_of_typ array_typ) 
   in
 
@@ -68,7 +70,9 @@ let translate (globals, functions) =
       L.var_arg_function_type str_t [| str_t |] in
   let prints_func : L.llvalue = 
       L.declare_function "puts" prints_t the_module in
-  
+  let printp_func : L.llvalue = 
+      L.declare_function "printp" printp_t the_module in
+
   (* Define each function (arguments and return type) so we can 
      call it even before we've created its body *)
   let function_decls : (L.llvalue * sfunc_decl) StringMap.t =
@@ -86,6 +90,7 @@ let translate (globals, functions) =
     let builder = L.builder_at_end context (L.entry_block the_function) in
 
     let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder
+    and pitch_format_str = L.build_global_stringptr "%s\n" "fmt" builder
     and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder in
 
     (* Construct the function's "locals": formal arguments and locally
@@ -145,6 +150,7 @@ let translate (globals, functions) =
           L.build_load (L.build_gep arr_var 
                           [| idx |] "" builder) 
             "" builder in ptr
+      | SPliteral p -> L.build_global_stringptr p "4#" builder
       | SNoexpr     -> L.const_int i32_t 0
       | SId s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in
@@ -200,6 +206,9 @@ let translate (globals, functions) =
 	  L.build_call printf_func [| float_format_str ; (expr builder e) |]
 	    "printf" builder
       | SCall ("prints", [e]) -> 
+    L.build_call printp_func [| pitch_format_str ; (expr builder e) |]
+      "printp" builder
+      | SCall ("printp", [e]) ->
     L.build_call prints_func [| (expr builder e) |]
       "puts" builder
       | SCall (f, args) ->

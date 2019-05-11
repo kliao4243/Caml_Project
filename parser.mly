@@ -6,10 +6,10 @@ open Ast
 %token QUOTE APOSTROPHE COLON
 %token SEMI LPAREN RPAREN LBRACE RBRACE LSQUARE RSQUARE COMMA PLUS MINUS TIMES DIVIDE MOD ASSIGN
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
-%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID STR
+%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID STR PITCH
 %token <int> LITERAL
 %token <bool> BLIT
-%token <string> ID FLIT SLIT
+%token <string> ID FLIT SLIT PLIT
 %token ARRAY
 %token EOF
 
@@ -59,6 +59,7 @@ typ:
 	| FLOAT { Float }
 	| VOID  { Void  }
 	| STR   { String }
+	| PITCH { Pitch }
 	| ARRAY LT typ GT  { Array($3) }
 
 vdecl_list:
@@ -83,7 +84,7 @@ stmt:
 	| WHILE LPAREN expr RPAREN stmt           { While($3, $5)         }
 	
 expr_opt:
-		/* nothing */ { Noexpr }
+	/* nothing */ { Noexpr }
 	| expr          { $1 }
 
 expr:
@@ -91,6 +92,7 @@ expr:
 	| FLIT	           { Fliteral($1)           }
 	| BLIT             { BoolLit($1)            }
 	| SLIT             { Sliteral($1)           }
+	| PLIT             { Pliteral($1)           }
 	| ID               { Id($1)                 }
 	| expr PLUS   expr { Binop($1, Add,   $3)   }
 	| expr MINUS  expr { Binop($1, Sub,   $3)   }

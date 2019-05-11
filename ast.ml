@@ -5,7 +5,7 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 
 type uop = Neg | Not
 
-type typ = Int | Bool | Float | Void | String | Array of typ
+type typ = Int | Bool | Float | Void | String | Pitch | Array of typ
 
 type bind = typ * string
 
@@ -14,6 +14,7 @@ type expr =
   | Fliteral of string
   | BoolLit of bool
   | Sliteral of string
+  | Pliteral of string
   | ArrayLit of expr list
   | ArrayAccess of expr * expr
   | Id of string
@@ -66,6 +67,7 @@ let rec string_of_expr = function
     Literal(l) -> string_of_int l
   | Fliteral(l) -> l
   | Sliteral(l) -> l
+  | Pliteral(l) -> l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | ArrayLit(_) -> "Array_literal"
@@ -99,6 +101,7 @@ let rec string_of_typ = function
   | Void -> "void"
   | String -> "string"
   | Array x -> "array<" ^ (string_of_typ x) ^ ">"
+  | Pitch -> "Pitch"
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 

@@ -31,18 +31,29 @@ let translate (globals, functions) =
   and i8_t       = L.i8_type     context
   and i1_t       = L.i1_type     context
   and float_t    = L.double_type context
+  and pitch_t    = L.pointer_type (L.i8_type context)
   and void_t     = L.void_type   context in
+<<<<<<< HEAD
   
   let str_t      = L.pointer_type i8_t
   in
   (* Return the LLVM type for a MicroC type *)
   let rec ltype_of_typ = function
+=======
+  let str_t      = L.pointer_type i8_t in
+  (* Return the LLVM type for a MicroC type *)
+  let ltype_of_typ = function
+>>>>>>> 1e06a6d08ee4328c25e27a278fddf5eedc70f469
       A.Int    -> i32_t
     | A.Bool   -> i1_t
     | A.Float  -> float_t
     | A.String -> str_t
     | A.Void   -> void_t
+<<<<<<< HEAD
     | A.Array array_typ -> L.pointer_type (ltype_of_typ array_typ) 
+=======
+    | A.Pitch -> pitch_t
+>>>>>>> 1e06a6d08ee4328c25e27a278fddf5eedc70f469
   in
 
   (* Create a map of global variables after creating each *)
@@ -68,7 +79,16 @@ let translate (globals, functions) =
       L.var_arg_function_type str_t [| str_t |] in
   let prints_func : L.llvalue = 
       L.declare_function "puts" prints_t the_module in
+<<<<<<< HEAD
   
+=======
+
+  let printp_t : L.lltype = 
+      L.var_arg_function_type pitch_t [| str_t |] in
+  let printp_func : L.llvalue = 
+      L.declare_function "printp" printp_t the_module in
+
+>>>>>>> 1e06a6d08ee4328c25e27a278fddf5eedc70f469
   (* Define each function (arguments and return type) so we can 
      call it even before we've created its body *)
   let function_decls : (L.llvalue * sfunc_decl) StringMap.t =
@@ -86,6 +106,7 @@ let translate (globals, functions) =
     let builder = L.builder_at_end context (L.entry_block the_function) in
 
     let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder
+    and pitch_format_str = L.build_global_stringptr "%s\n" "fmt" builder
     and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder in
 
     (* Construct the function's "locals": formal arguments and locally
@@ -122,6 +143,7 @@ let translate (globals, functions) =
       | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
       | SFliteral l -> L.const_float_of_string float_t l
       | SSliteral s -> L.build_global_stringptr s "123" builder
+<<<<<<< HEAD
       | SArrayLit (sexpr_list) ->
         let all_elem = List.map (fun e ->
             expr builder e) sexpr_list in
@@ -145,6 +167,9 @@ let translate (globals, functions) =
           L.build_load (L.build_gep arr_var 
                           [| idx |] "" builder) 
             "" builder in ptr
+=======
+      | SPliteral p -> L.build_global_stringptr p "4#" builder
+>>>>>>> 1e06a6d08ee4328c25e27a278fddf5eedc70f469
       | SNoexpr     -> L.const_int i32_t 0
       | SId s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in
@@ -200,6 +225,12 @@ let translate (globals, functions) =
 	  L.build_call printf_func [| float_format_str ; (expr builder e) |]
 	    "printf" builder
       | SCall ("prints", [e]) -> 
+<<<<<<< HEAD
+=======
+    L.build_call printp_func [| pitch_format_str ; (expr builder e) |]
+      "printp" builder
+      | SCall ("printp", [e]) ->
+>>>>>>> 1e06a6d08ee4328c25e27a278fddf5eedc70f469
     L.build_call prints_func [| (expr builder e) |]
       "puts" builder
       | SCall (f, args) ->
