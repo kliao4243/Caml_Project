@@ -1,6 +1,6 @@
 int main()
 {
-  int c;
-  int b;
+  Array<int> a;
+  a=[1,2];
   return 0;
 }

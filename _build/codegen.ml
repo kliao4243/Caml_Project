@@ -135,8 +135,17 @@ let translate (globals, functions) =
             expr builder e) sexpr_list in
         let llarray_t = L.type_of (List.hd all_elem) in
         let num_elems = List.length sexpr_list in
-        L.build_array_alloca llarray_t (L.const_int i32_t num_elems) "" builder 
-        
+          let ptr = L.build_array_malloc llarray_t
+              (L.const_int i32_t num_elems) "" builder 
+          in
+          ignore (List.fold_left (fun i elem ->
+              let idx = L.const_int i32_t i in
+              let eptr = L.build_gep ptr [|idx|] "" builder in
+              let cptr = L.build_pointercast eptr 
+                  (L.pointer_type (L.type_of elem)) "" builder in
+              let _ = (L.build_store elem cptr builder) 
+              in i+1)
+              0 all_elem); ptr
       | SNoexpr     -> L.const_int i32_t 0
       | SId s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in
