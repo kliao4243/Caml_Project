@@ -7,6 +7,8 @@ type token =
   | RPAREN
   | LBRACE
   | RBRACE
+  | LSQUARE
+  | RSQUARE
   | COMMA
   | PLUS
   | MINUS
@@ -40,6 +42,7 @@ type token =
   | FLIT of (string)
   | SLIT of (string)
   | PLIT of (string)
+  | ARRAY
   | EOF
 
 val program :

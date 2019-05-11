@@ -9,7 +9,6 @@ module StringMap = Map.Make(String)
    throws an exception if something is wrong.
 
    Check each global variable, then check each function *)
-
 let check (globals, functions) =
 
   (* Verify a list of bindings has no void types or duplicate names *)
@@ -92,6 +91,7 @@ let check (globals, functions) =
       with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
 
+
     (* Return a semantically-checked expression, i.e., with a type *)
     let rec expr = function
         Literal  l -> (Int, SLiteral l)
@@ -148,6 +148,21 @@ let check (globals, functions) =
           in 
           let args' = List.map2 check_call fd.formals args
           in (fd.typ, SCall(fname, args'))
+      | ArrayLit vals ->
+         let (t', _) = expr (List.hd vals) in
+         let map_func lit = expr lit in
+         let vals' = List.map map_func vals in
+         (* TODO: check that all vals are of the same type *)
+         (Array t', SArrayLit(vals'))
+      | ArrayAccess (var, idx) ->   
+        let (t1, se1) = expr var in
+        let (t2, se2) = expr idx in
+        let t3 = match t1 with 
+            Array(t) -> t
+          | _ -> raise (Failure ("not an array"))
+        in
+        if t2 = Int then (t3, SArrayAccess((t1, se1), (t2, se2)))
+        else raise (Failure ("can't access array with non-integer type"))      
     in
 
     let check_bool_expr e = 

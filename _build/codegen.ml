@@ -33,15 +33,18 @@ let translate (globals, functions) =
   and float_t    = L.double_type context
   and pitch_t    = L.pointer_type (L.i8_type context)
   and void_t     = L.void_type   context in
-  let str_t      = L.pointer_type i8_t in
+  
+  let str_t      = L.pointer_type i8_t
+  in
   (* Return the LLVM type for a MicroC type *)
-  let ltype_of_typ = function
+  let rec ltype_of_typ = function
       A.Int    -> i32_t
     | A.Bool   -> i1_t
     | A.Float  -> float_t
     | A.String -> str_t
     | A.Void   -> void_t
     | A.Pitch -> pitch_t
+    | A.Array array_typ -> L.pointer_type (ltype_of_typ array_typ) 
   in
 
   (* Create a map of global variables after creating each *)
@@ -67,9 +70,6 @@ let translate (globals, functions) =
       L.var_arg_function_type str_t [| str_t |] in
   let prints_func : L.llvalue = 
       L.declare_function "puts" prints_t the_module in
-
-  let printp_t : L.lltype = 
-      L.var_arg_function_type pitch_t [| str_t |] in
   let printp_func : L.llvalue = 
       L.declare_function "printp" printp_t the_module in
 
@@ -99,9 +99,9 @@ let translate (globals, functions) =
     let local_vars =
       let add_formal m (t, n) p = 
         L.set_value_name n p;
-	let local = L.build_alloca (ltype_of_typ t) n builder in
+    	let local = L.build_alloca (ltype_of_typ t) n builder in
         ignore (L.build_store p local builder);
-	StringMap.add n local m 
+	    StringMap.add n local m 
 
       (* Allocate space for any locally declared variables and add the
        * resulting registers to our map *)
@@ -127,6 +127,29 @@ let translate (globals, functions) =
       | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
       | SFliteral l -> L.const_float_of_string float_t l
       | SSliteral s -> L.build_global_stringptr s "123" builder
+      | SArrayLit (sexpr_list) ->
+        let all_elem = List.map (fun e ->
+            expr builder e) sexpr_list in
+        let llarray_t = L.type_of (List.hd all_elem) in
+        let num_elems = List.length sexpr_list in
+          let ptr = L.build_array_malloc llarray_t
+              (L.const_int i32_t num_elems) "" builder 
+          in
+          ignore (List.fold_left (fun i elem ->
+              let idx = L.const_int i32_t i in
+              let eptr = L.build_gep ptr [|idx|] "" builder in
+              let cptr = L.build_pointercast eptr 
+                  (L.pointer_type (L.type_of elem)) "" builder in
+              let _ = (L.build_store elem cptr builder) 
+              in i+1)
+              0 all_elem); ptr
+      | SArrayAccess(arr, i) ->
+        let arr_var = expr builder arr in
+        let idx = expr builder i in 
+        let ptr = 
+          L.build_load (L.build_gep arr_var 
+                          [| idx |] "" builder) 
+            "" builder in ptr
       | SPliteral p -> L.build_global_stringptr p "4#" builder
       | SNoexpr     -> L.const_int i32_t 0
       | SId s       -> L.build_load (lookup s) s builder
