@@ -3,8 +3,8 @@
 %{
 open Ast
 %}
-%token QUOTE APOSTROPHE COLON
-%token SEMI LPAREN RPAREN LBRACE RBRACE LSQUARE RSQUARE COMMA PLUS MINUS TIMES DIVIDE MOD ASSIGN
+%token QUOTE APOSTROPHE COLON LSQUARE RSQUARE 
+%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE MOD ASSIGN
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
 %token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID STR PITCH
 %token <int> LITERAL
@@ -21,7 +21,7 @@ open Ast
 %right ASSIGN
 %left OR
 %left AND
-%left EQ NEQ
+%left EQ NEQ LSQUARE RSQUARE
 %left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
@@ -109,13 +109,13 @@ expr:
 	| expr GEQ    expr { Binop($1, Geq,   $3)   }
 	| expr AND    expr { Binop($1, And,   $3)   }
 	| expr OR     expr { Binop($1, Or,    $3)   }
+	| expr LSQUARE expr RSQUARE { ArrayAccess($1, $3) }
 	| MINUS expr %prec NOT { Unop(Neg, $2)      }
 	| NOT expr         { Unop(Not, $2)          }
 	| ID ASSIGN expr   { Assign($1, $3)         }
 	| ID LPAREN args_opt RPAREN { Call($1, $3)  }
 	| LPAREN expr RPAREN { $2                   }
 	| LSQUARE args_opt RSQUARE   { ArrayLit($2) }
-	| expr LSQUARE expr RSQUARE { ArrayAccess($1, $3) }
 
 args_opt:
 		/* nothing */ { [] }

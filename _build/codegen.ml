@@ -70,6 +70,8 @@ let translate (globals, functions) =
       L.var_arg_function_type str_t [| str_t |] in
   let prints_func : L.llvalue = 
       L.declare_function "puts" prints_t the_module in
+  let printp_t : L.lltype = 
+      L.var_arg_function_type pitch_t [| str_t |] in
   let printp_func : L.llvalue = 
       L.declare_function "printp" printp_t the_module in
 
