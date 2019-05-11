@@ -7,7 +7,6 @@ open Ast
 %token SEMI LPAREN RPAREN LBRACE RBRACE LSQUARE RSQUARE COMMA PLUS MINUS TIMES DIVIDE MOD ASSIGN
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
 %token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID STR
-%token ARRAY_SIZE
 %token <int> LITERAL
 %token <bool> BLIT
 %token <string> ID FLIT SLIT
@@ -92,7 +91,6 @@ expr:
 	| FLIT	           { Fliteral($1)           }
 	| BLIT             { BoolLit($1)            }
 	| SLIT             { Sliteral($1)           }
-	| ARRAY_SIZE LPAREN ID RPAREN{ ArraySize($3)}
 	| ID               { Id($1)                 }
 	| expr PLUS   expr { Binop($1, Add,   $3)   }
 	| expr MINUS  expr { Binop($1, Sub,   $3)   }
@@ -115,7 +113,7 @@ expr:
 	| ID LPAREN args_opt RPAREN { Call($1, $3)  }
 	| LPAREN expr RPAREN { $2                   }
 	| LSQUARE args_opt RSQUARE   { ArrayLit($2) }
-	| ID LSQUARE expr RSQUARE   { ArrayAccess($1, $3) }
+	| expr LSQUARE expr RSQUARE { ArrayAccess($1, $3) }
 
 args_opt:
 		/* nothing */ { [] }

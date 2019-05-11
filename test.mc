@@ -1,6 +1,8 @@
 int main()
 {
   Array<int> a;
-  a=[1,2];
+  int b;
+  a=[1,2,3,4];
+  print(size(a));
   return 0;
 }

@@ -35,7 +35,6 @@ type token =
   | FLOAT
   | VOID
   | STR
-  | ARRAY_SIZE
   | LITERAL of (int)
   | BLIT of (bool)
   | ID of (string)

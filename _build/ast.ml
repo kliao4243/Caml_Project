@@ -15,8 +15,7 @@ type expr =
   | BoolLit of bool
   | Sliteral of string
   | ArrayLit of expr list
-  | ArraySize of string
-  | ArrayAccess of string * expr
+  | ArrayAccess of expr * expr
   | Id of string
   | Binop of expr * op * expr
   | Unop of uop * expr
@@ -70,6 +69,7 @@ let rec string_of_expr = function
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | ArrayLit(_) -> "Array_literal"
+  | ArrayAccess(s,e) -> "Array_access" ^ " "^ string_of_expr s ^ " " ^string_of_expr e
   | Id(s) -> s
   | Binop(e1, o, e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
@@ -77,7 +77,6 @@ let rec string_of_expr = function
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
-  | ArraySize(id) ->  "Array_size " ^ id
   | Noexpr -> ""
 
 let rec string_of_stmt = function

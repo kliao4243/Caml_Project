@@ -33,7 +33,7 @@ let translate (globals, functions) =
   and float_t    = L.double_type context
   and void_t     = L.void_type   context in
   
-  let str_t      = L.pointer_type i8_t   
+  let str_t      = L.pointer_type i8_t
   in
   (* Return the LLVM type for a MicroC type *)
   let rec ltype_of_typ = function
@@ -43,14 +43,6 @@ let translate (globals, functions) =
     | A.String -> str_t
     | A.Void   -> void_t
     | A.Array array_typ -> L.pointer_type (ltype_of_typ array_typ) 
-  in
-
-  let type_str t = match t with
-       A.Int -> "int"
-     | A.Bool -> "bool"
-     | A.Float -> "float"
-     | A.String -> "str"
-     | _ -> raise (Failure "Invalid string map key type")
   in
 
   (* Create a map of global variables after creating each *)
@@ -102,9 +94,9 @@ let translate (globals, functions) =
     let local_vars =
       let add_formal m (t, n) p = 
         L.set_value_name n p;
-	let local = L.build_alloca (ltype_of_typ t) n builder in
+    	let local = L.build_alloca (ltype_of_typ t) n builder in
         ignore (L.build_store p local builder);
-	StringMap.add n local m 
+	    StringMap.add n local m 
 
       (* Allocate space for any locally declared variables and add the
        * resulting registers to our map *)
@@ -146,6 +138,13 @@ let translate (globals, functions) =
               let _ = (L.build_store elem cptr builder) 
               in i+1)
               0 all_elem); ptr
+      | SArrayAccess(arr, i) ->
+        let arr_var = expr builder arr in
+        let idx = expr builder i in 
+        let ptr = 
+          L.build_load (L.build_gep arr_var 
+                          [| idx |] "" builder) 
+            "" builder in ptr
       | SNoexpr     -> L.const_int i32_t 0
       | SId s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in

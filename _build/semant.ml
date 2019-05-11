@@ -90,11 +90,6 @@ let check (globals, functions) =
       with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
 
-     let check_list_type id = 
-       match (type_of_identifier id) with 
-          Array t -> t
-        | t -> raise (Failure ("check list type error, typ: " ^ string_of_typ t))
-    in
 
     (* Return a semantically-checked expression, i.e., with a type *)
     let rec expr = function
@@ -151,22 +146,21 @@ let check (globals, functions) =
           in 
           let args' = List.map2 check_call fd.formals args
           in (fd.typ, SCall(fname, args'))
-      | ArraySize var -> 
-          (Int, SArraySize(check_list_type var, var))
       | ArrayLit vals ->
          let (t', _) = expr (List.hd vals) in
          let map_func lit = expr lit in
          let vals' = List.map map_func vals in
          (* TODO: check that all vals are of the same type *)
          (Array t', SArrayLit(vals'))
-      | ArrayAccess (var, e) -> 
-         let (t, e') = expr e in
-         let ty = match t with 
-             Int -> Int
-             | _ -> raise (Failure ("list_get index must be integer, not " ^ string_of_typ t)) 
-         in let list_type = check_list_type var
-         in (list_type, SArrayAccess(list_type, var, (ty, e')))
-      
+      | ArrayAccess (var, idx) ->   
+        let (t1, se1) = expr var in
+        let (t2, se2) = expr idx in
+        let t3 = match t1 with 
+            Array(t) -> t
+          | _ -> raise (Failure ("not an array"))
+        in
+        if t2 = Int then (t3, SArrayAccess((t1, se1), (t2, se2)))
+        else raise (Failure ("can't access array with non-integer type"))      
     in
 
     let check_bool_expr e = 
