@@ -66,6 +66,11 @@ let translate (globals, functions) =
   let prints_func : L.llvalue = 
       L.declare_function "puts" prints_t the_module in
 
+  let pitch_to_int: L.lltype = 
+      L.var_arg_function_type pitch_t [|pitch_t|] in
+  let pitch_to_int_func : L.llvalue = 
+      L.declare_function "pitch_to_int" pitch_to_int the_module in
+
   (* Define each function (arguments and return type) so we can 
      call it even before we've created its body *)
   let function_decls : (L.llvalue * sfunc_decl) StringMap.t =
@@ -196,10 +201,11 @@ let translate (globals, functions) =
 				| A.Float -> L.build_call printf_func [| float_format_str ; (expr builder (t,e)) |] "printf" builder
 				| A.Pitch -> L.build_call prints_func [|(expr builder (t,e)) |] "prints" builder
 				| _ -> raise (Failure (A.string_of_typ t)))
+      | SCall ("pitch_to_int", e) -> L.build_call pitch_to_int_func [|expr builder (List.hd e)|] "pitchtoint" builder
       | SCall (f, args) ->
          let (fdef, fdecl) = StringMap.find f function_decls in
-	 let llargs = List.rev (List.map (expr builder) (List.rev args)) in
-	 let result = (match fdecl.styp with 
+      	 let llargs = List.rev (List.map (expr builder) (List.rev args)) in
+	       let result = (match fdecl.styp with 
                         A.Void -> ""
                       | _ -> f ^ "_result") in
          L.build_call fdef (Array.of_list llargs) result builder

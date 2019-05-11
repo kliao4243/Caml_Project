@@ -1,13 +1,7 @@
 int main()
 {
-  String c;
-  int b;
   Pitch p;
-  b = 1;
-  p = 1#1;
-  c = "hello";
-  print(p);
-  print(c);
-  print(b);
+  p=1#1;
+  pitch_to_int(p);
   return 0;
 }

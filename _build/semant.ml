@@ -42,7 +42,8 @@ let check (globals, functions) =
 			                         ("printf", Float);
 			                         ("printbig", Int);
                                ("prints", String);
-                               ("printp", Pitch); ]
+                               ("printp", Pitch); 
+                               ("pitch_to_int", Pitch);]
   in
 
   (* Add function name to symbol table *)

@@ -66,22 +66,26 @@ let translate (globals, functions) =
   let prints_func : L.llvalue = 
       L.declare_function "puts" prints_t the_module in
 
+  let pitch_to_int: L.lltype = 
+      L.var_arg_function_type pitch_t [|pitch_t|] in
+  let pitch_to_int_func : L.llvalue = 
+      L.declare_function "pitch_to_int" pitch_to_int the_module in
+
   (* Define each function (arguments and return type) so we can 
      call it even before we've created its body *)
   let function_decls : (L.llvalue * sfunc_decl) StringMap.t =
     let function_decl m fdecl =
       let name = fdecl.sfname
       and formal_types = 
-	Array.of_list (List.map (fun (t,_) -> ltype_of_typ t) fdecl.sformals)
+      	Array.of_list (List.map (fun (t,_) -> ltype_of_typ t) fdecl.sformals)
       in let ftype = L.function_type (ltype_of_typ fdecl.styp) formal_types in
-      StringMap.add name (L.define_function name ftype the_module, fdecl) m in
-    List.fold_left function_decl StringMap.empty functions in
+        StringMap.add name (L.define_function name ftype the_module, fdecl) m in
+        List.fold_left function_decl StringMap.empty functions in
   
   (* Fill in the body of the given function *)
   let build_function_body fdecl =
     let (the_function, _) = StringMap.find fdecl.sfname function_decls in
     let builder = L.builder_at_end context (L.entry_block the_function) in
-
     let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder
     and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder in
 
@@ -98,8 +102,8 @@ let translate (globals, functions) =
       (* Allocate space for any locally declared variables and add the
        * resulting registers to our map *)
       and add_local m (t, n) =
-	let local_var = L.build_alloca (ltype_of_typ t) n builder
-	in StringMap.add n local_var m 
+    	let local_var = L.build_alloca (ltype_of_typ t) n builder
+	    in StringMap.add n local_var m 
       in
 
       let formals = List.fold_left2 add_formal StringMap.empty fdecl.sformals
@@ -196,10 +200,11 @@ let translate (globals, functions) =
 				| A.Float -> L.build_call printf_func [| float_format_str ; (expr builder (t,e)) |] "printf" builder
 				| A.Pitch -> L.build_call prints_func [|(expr builder (t,e)) |] "prints" builder
 				| _ -> raise (Failure (A.string_of_typ t)))
+      | SCall ("pitch_to_int", e) -> L.build_call pitch_to_int_func [|expr builder (List.hd e)|] "pitchtoint" builder
       | SCall (f, args) ->
          let (fdef, fdecl) = StringMap.find f function_decls in
-	 let llargs = List.rev (List.map (expr builder) (List.rev args)) in
-	 let result = (match fdecl.styp with 
+      	 let llargs = List.rev (List.map (expr builder) (List.rev args)) in
+	       let result = (match fdecl.styp with 
                         A.Void -> ""
                       | _ -> f ^ "_result") in
          L.build_call fdef (Array.of_list llargs) result builder
