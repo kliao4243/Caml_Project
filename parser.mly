@@ -46,7 +46,7 @@ fdecl:
 			 body = List.rev $8 } }
 
 formals_opt:
-		/* nothing */ { [] }
+	/* nothing */ { [] }
 	| formal_list   { $1 }
 
 formal_list:

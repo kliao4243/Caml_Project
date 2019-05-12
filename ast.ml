@@ -7,7 +7,7 @@ type uop = Neg | Not
 
 type typ = Int | Bool | Float | Void | String | Pitch | Array of typ
 
-type bind = typ * string
+type bind = typ * string 
 
 type expr =
     Literal of int
