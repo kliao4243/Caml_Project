@@ -1,9 +1,9 @@
-
+int b;
+int foo(){  
+  print(b);
+}
 int main()
 {
-  Array<int> a;
-  a = [1,2,3];
-  a[1] = 10;
-  print(a[1]);
-  return 0;
+  b = 3;
+  foo();
 }
