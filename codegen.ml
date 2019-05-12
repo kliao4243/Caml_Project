@@ -19,7 +19,12 @@ open Sast
 module StringMap = Map.Make(String)
 
 (* translate : Sast.program -> Llvm.module *)
-let translate (globals, functions) =
+
+
+let translate program =
+  let globals = program.sglobals
+  and functions = program.sfunctions
+  in
   let context    = L.global_context () in
   
   (* Create the LLVM compilation module into which
@@ -33,7 +38,7 @@ let translate (globals, functions) =
   and float_t    = L.double_type context
   and pitch_t    = L.pointer_type (L.i8_type context)
   and void_t     = L.void_type   context in
-  
+  let struct_t n = L.named_struct_type context n in
   let str_t      = L.pointer_type i8_t
   in
   (* Return the LLVM type for a MicroC type *)
@@ -44,8 +49,10 @@ let translate (globals, functions) =
     | A.String -> str_t
     | A.Void   -> void_t
     | A.Pitch -> pitch_t
+    | A.Struct n -> struct_t n
     | A.Array array_typ -> L.pointer_type (ltype_of_typ array_typ) 
   in
+
 
   (* Create a map of global variables after creating each *)
   let global_vars : L.llvalue StringMap.t =
@@ -149,8 +156,20 @@ let translate (globals, functions) =
       | SPliteral p -> L.build_global_stringptr p "4#" builder
       | SNoexpr     -> L.const_int i32_t 0
       | SId s       -> L.build_load (lookup s) s builder
-      | SAssign (s, e) -> let e' = expr builder e in
-                          ignore(L.build_store e' (lookup s) builder); e'
+      | SAssign ((_,SArrayAccess(arr, i)), e) -> 
+        let e' = expr builder e in
+        let arr_var = expr builder arr in
+        let idx = expr builder i in 
+        let ptr = 
+          L.build_gep arr_var [| idx |] "" builder 
+        in 
+        ignore(L.build_store e' ptr builder); e'
+      | SAssign (e1, e2) -> 
+      let e2' = expr builder e2 in
+      (match snd e1 with
+           SId s -> ignore(L.build_store e2' (lookup s) builder); e2'
+          | _ -> raise (Failure ("Not implemented in codegen"))
+      ) 
       | SBinop ((A.Float,_ ) as e1, op, e2) ->
 	  let e1' = expr builder e1
 	  and e2' = expr builder e2 in

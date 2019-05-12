@@ -5,11 +5,11 @@ open Ast
 %}
 %token QUOTE APOSTROPHE COLON LSQUARE RSQUARE 
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE MOD ASSIGN
-%token NOT EQ NEQ LT LEQ GT GEQ AND OR
-%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID STR PITCH
+%token NOT EQ NEQ LT LEQ GT GEQ AND OR DOT
+%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID STR PITCH STRUCT
 %token <int> LITERAL
 %token <bool> BLIT
-%token <string> ID FLIT SLIT PLIT
+%token <string> ID FLIT SLIT PLIT STLIT
 %token ARRAY
 %token EOF
 
@@ -21,7 +21,7 @@ open Ast
 %right ASSIGN
 %left OR
 %left AND
-%left EQ NEQ LSQUARE RSQUARE
+%left EQ NEQ LSQUARE RSQUARE DOT
 %left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
@@ -33,9 +33,17 @@ program:
 	decls EOF { $1 }
 
 decls:
-	 /* nothing */ { ([], [])               }
- | decls vdecl { (($2 :: fst $1), snd $1) }
- | decls fdecl { (fst $1, ($2 :: snd $1)) }
+   /* nothing */ { {globals=[]; functions=[]; structs=[]} }
+ | decls vdecl { {globals = ($2 :: $1.globals); functions = $1.functions; structs = $1.structs} }
+ | decls fdecl { {globals = $1.globals; functions = ($2 :: $1.functions); structs = $1.structs} }
+ | decls sdecl { {globals = $1.globals; functions = $1.functions; structs = ($2 :: $1.structs)} }
+
+vdecl:
+   typ ID SEMI { ($1, $2) }
+
+vdecl_list:
+    /* nothing */    { [] }
+  | vdecl_list vdecl { $2 :: $1 }
 
 fdecl:
 	 typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
@@ -44,6 +52,13 @@ fdecl:
 			 formals = List.rev $4;
 			 locals = List.rev $7;
 			 body = List.rev $8 } }
+
+sdecl:
+  STRUCT STLIT LBRACE vdecl_list RBRACE SEMI
+    {{
+      struct_name = $2;
+      members = $4;
+    }}
 
 formals_opt:
 	/* nothing */ { [] }
@@ -54,20 +69,14 @@ formal_list:
 	| formal_list COMMA typ ID { ($3,$4) :: $1 }
 
 typ:
-	INT   { Int   }
-	| BOOL  { Bool  }
-	| FLOAT { Float }
-	| VOID  { Void  }
-	| STR   { String }
-	| PITCH { Pitch }
-	| ARRAY LT typ GT  { Array($3) }
-
-vdecl_list:
-		/* nothing */    { [] }
-	| vdecl_list vdecl { $2 :: $1 }
-
-vdecl:
-	 typ ID SEMI { ($1, $2) }
+    INT   { Int   }
+  | BOOL  { Bool  }
+  | FLOAT { Float }
+  | VOID  { Void  }
+  | STR   { String }
+  | PITCH { Pitch }
+  | STLIT { Struct($1) }
+  | ARRAY LT typ GT  { Array($3) }
 
 stmt_list:
 		/* nothing */  { [] }
@@ -88,7 +97,7 @@ expr_opt:
 	| expr          { $1 }
 
 expr:
-	LITERAL          { Literal($1)            }
+	LITERAL            { Literal($1)            }
 	| FLIT	           { Fliteral($1)           }
 	| BLIT             { BoolLit($1)            }
 	| SLIT             { Sliteral($1)           }
@@ -109,10 +118,11 @@ expr:
 	| expr GEQ    expr { Binop($1, Geq,   $3)   }
 	| expr AND    expr { Binop($1, And,   $3)   }
 	| expr OR     expr { Binop($1, Or,    $3)   }
+	| expr DOT ID      { StructAccess($1, $3)   }
 	| expr LSQUARE expr RSQUARE { ArrayAccess($1, $3) }
 	| MINUS expr %prec NOT { Unop(Neg, $2)      }
 	| NOT expr         { Unop(Not, $2)          }
-	| ID ASSIGN expr   { Assign($1, $3)         }
+	| expr ASSIGN expr { Assign($1, $3)         }
 	| ID LPAREN args_opt RPAREN { Call($1, $3)  }
 	| LPAREN expr RPAREN { $2                   }
 	| LSQUARE args_opt RSQUARE   { ArrayLit($2) }

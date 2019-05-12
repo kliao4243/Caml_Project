@@ -23,6 +23,7 @@ rule token = parse
 | '%'	   { MOD }
 | '='      { ASSIGN }
 | ':'      { COLON }
+| '.'      { DOT }
 | ''' 	   { APOSTROPHE }
 | '"' 	   { QUOTE }
 | '"' (('\\' '"'| [^'"'])* as str) '"' { SLIT(Scanf.unescaped str) }
@@ -45,14 +46,16 @@ rule token = parse
 | "float"  { FLOAT } 
 | "String" { STR }
 | "Pitch"  { PITCH }
+| "struct" { STRUCT }
 | "void"   { VOID }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
 | "Array" 		{ ARRAY }
 | digits as lxm { LITERAL(int_of_string lxm) }
 | digits '.'  digit* ( ['e' 'E'] ['+' '-']? digits )? as lxm { FLIT(lxm) }
-| ['1'-'7'] ['b' '#' '^'] ['0'-'8'] as lxm { PLIT(lxm) }
+| ['1'-'7'] ['b' '#' '^'] ['0'-'8']                   as lxm { PLIT(lxm) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*     as lxm { ID(lxm) }
+| ['_']['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { STLIT(lxm)}
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 

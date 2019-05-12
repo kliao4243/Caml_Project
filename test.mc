@@ -1,7 +1,9 @@
+
 int main()
 {
-  Pitch p;
-  p=1#1;
-  pitch_to_int(p);
+  Array<int> a;
+  a = [1,2,3];
+  a[1] = 10;
+  print(a[1]);
   return 0;
 }
