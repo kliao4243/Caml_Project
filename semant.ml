@@ -16,20 +16,21 @@ let check program =
   and functions = program.functions
   in
   (* Verify a list of bindings has no void types or duplicate names *)
-  let check_binds (kind : string) (binds : bind list) =
+  let check_binds (kind : string) (binds : bind_value list) =
     List.iter (function
-	(Void, b) -> raise (Failure ("illegal void " ^ kind ^ " " ^ b))
-      | _ -> ()) binds;
+	(Void, b, _) -> raise (Failure ("illegal void " ^ kind ^ " " ^ b))
+      | (_,_,_) -> ()) 
+    binds;
+
     let rec dups = function
         [] -> ()
-      |	((_,n1) :: (_,n2) :: _) when n1 = n2 ->
+      |	((_,n1,_) :: (_,n2,_) :: _) when n1 = n2 ->
 	  raise (Failure ("duplicate " ^ kind ^ " " ^ n1))
       | _ :: t -> dups t
-    in dups (List.sort (fun (_,a) (_,b) -> compare a b) binds)
+    in dups (List.sort (fun (_,a,_) (_,b,_) -> compare a b) binds)
   in
 
   (**** Check global variables ****)
-
   check_binds "global" program.globals;
 
   (**** Check functions ****)
@@ -39,14 +40,15 @@ let check program =
     let add_bind map (name, ty) = StringMap.add name {
       typ = Void;
       fname = name; 
-      formals = [(ty, "x")];
+      formals = [(ty, "x", Literal(0))];
       locals = []; body = [] } map
     in List.fold_left add_bind StringMap.empty [ ("print", Int);
 			                         ("printb", Bool);
 			                         ("printf", Float);
 			                         ("printbig", Int);
                                ("prints", String);
-                               ("printp", Pitch); ]
+                               ("printp", Pitch); 
+                               ("pitch_to_int", Pitch);]
   in
 
   (* Add function name to symbol table *)
@@ -62,7 +64,7 @@ let check program =
   in
 
   (* Collect all function names into one symbol table *)
-  let function_decls = List.fold_left add_func built_in_decls program.functions
+  let function_decls = List.fold_left add_func built_in_decls functions
   in
   
   (* Return a function from our symbol table *)
@@ -79,7 +81,6 @@ let check program =
         _ when StringMap.mem n map -> make_err dup_err 
       | _ -> StringMap.add n sd map
   in
-
   (* Collect all struct names into one symbol table *)
   let struct_decls = List.fold_left add_struct StringMap.empty program.structs
   in
@@ -95,6 +96,13 @@ let check program =
     check_binds "formal" func.formals;
     check_binds "local" func.locals;
 
+    let add_assign (stmts:stmt list) (local:bind_value) = match local with
+      (_,_,Noexpr) -> stmts
+     |(_,n,e) -> Expr(Assign((Id(n)),e))::stmts
+    in
+    let new_body = List.fold_left add_assign func.body func.locals
+    in
+
     (* Raise an exception if the given rvalue type cannot be assigned to
        the given lvalue type *)
     let check_assign lvaluet rvaluet err =
@@ -102,7 +110,7 @@ let check program =
     in   
 
     (* Build local symbol table of variables for this function *)
-    let symbols = List.fold_left (fun m (ty, name) -> StringMap.add name ty m)
+    let symbols = List.fold_left (fun m (ty, name, expr) -> StringMap.add name ty m)
 	                StringMap.empty (program.globals @ func.formals @ func.locals )
     in
 
@@ -111,7 +119,6 @@ let check program =
       try StringMap.find s symbols
       with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
-
 
     (* Return a semantically-checked expression, i.e., with a type *)
     let rec expr = function
@@ -122,12 +129,16 @@ let check program =
       | Pliteral l -> (Pitch, SPliteral l)
       | Noexpr     -> (Void, SNoexpr)
       | Id s       -> (type_of_identifier s, SId s)
-      | Assign(var, e) as ex -> 
-          let lt = type_of_identifier var
-          and (rt, e') = expr e in
+
+
+      | Assign(left_e, right_e) as ex -> 
+          
+          let (lt, e1) = expr left_e 
+          and (rt, e2) = expr right_e in
           let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
             string_of_typ rt ^ " in " ^ string_of_expr ex
-          in (check_assign lt rt err, SAssign(var, (rt, e')))
+          in (check_assign lt rt err, SAssign((lt, e1), (rt, e2)))
+      
       | Unop(op, e) as ex -> 
           let (t, e') = expr e in
           let ty = match op with
@@ -156,25 +167,28 @@ let check program =
                        string_of_typ t2 ^ " in " ^ string_of_expr e))
           in (ty, SBinop((t1, e1'), op, (t2, e2')))
       | Call(fname, args) as call -> 
-          let fd = find_func fname in
-          let param_length = List.length fd.formals in
-          if List.length args != param_length then
-            raise (Failure ("expecting " ^ string_of_int param_length ^ 
-                            " arguments in " ^ string_of_expr call))
-          else let check_call (ft, _) e = 
-            let (et, e') = expr e in 
-            let err = "illegal argument found " ^ string_of_typ et ^
-              " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e
-            in (check_assign ft et err, e')
-          in 
-          let args' = List.map2 check_call fd.formals args
-          in (fd.typ, SCall(fname, args'))
+          if fname="print" then 
+            let args' = List.map expr args in
+            (Int, SCall (fname, args'))
+          else
+            let fd = find_func fname in
+            let param_length = List.length fd.formals in
+            if List.length args != param_length then
+              raise (Failure ("expecting " ^ string_of_int param_length ^ 
+                              " arguments in " ^ string_of_expr call))
+            else let check_call (ft, _, _) e = 
+              let (et, e') = expr e in 
+              let err = "illegal argument found " ^ string_of_typ et ^
+                " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e
+              in (check_assign ft et err, e')
+            in 
+            let args' = List.map2 check_call fd.formals args
+            in (fd.typ, SCall(fname, args'))
       | StructAccess(s, m) as sacc ->
-        let (s_type, s_id) = expr s
-        in
+        let (s_type, _) = expr s in
         let sd = find_struct (string_of_typ s_type) 
         in
-          let members = List.fold_left (fun m (t,n) -> StringMap.add n t m) StringMap.empty sd.members in
+          let members = List.fold_left (fun m (t,n,_) -> StringMap.add n t m) StringMap.empty sd.members in
           (* Iterate through the members of the struct; if name found, return its type, else fail *)
           (try let tem = StringMap.find m members in 
            (tem, SSliteral(m)) 
@@ -207,14 +221,13 @@ let check program =
         Expr e -> SExpr (expr e)
       | If(p, b1, b2) -> SIf(check_bool_expr p, check_stmt b1, check_stmt b2)
       | For(e1, e2, e3, st) ->
-	  SFor(expr e1, check_bool_expr e2, expr e3, check_stmt st)
+	      SFor(expr e1, check_bool_expr e2, expr e3, check_stmt st)
       | While(p, s) -> SWhile(check_bool_expr p, check_stmt s)
       | Return e -> let (t, e') = expr e in
         if t = func.typ then SReturn (t, e') 
-        else raise (
-	  Failure ("return gives " ^ string_of_typ t ^ " expected " ^
+        else raise (Failure ("return gives " ^ string_of_typ t ^ " expected " ^
 		   string_of_typ func.typ ^ " in " ^ string_of_expr e))
-	    
+
 	    (* A block is correct if each statement is correct and nothing
 	       follows any Return statement.  Nested blocks are flattened. *)
       | Block sl -> 
@@ -231,18 +244,19 @@ let check program =
       sfname = func.fname;
       sformals = func.formals;
       slocals  = func.locals;
-      sbody = match check_stmt (Block func.body) with
+      sbody = match check_stmt (Block new_body) with
 	SBlock(sl) -> sl
       | _ -> raise (Failure ("internal error: block didn't become a block?"))
     }
   in
+
   let check_struct struc = 
   { sstruct_name = struc.struct_name;
     smembers = struc.members;
   }
   in
   { 
-    sglobals = program.globals;
-    sfunctions = List.map check_function program.functions;
+    sglobals = globals;
+    sfunctions = List.map check_function functions;
     sstructs = List.map check_struct program.structs;
   }
