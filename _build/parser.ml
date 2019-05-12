@@ -513,7 +513,7 @@ let yyact = [|
 ; (fun __caml_parser_env ->
     Obj.repr(
 # 64 "parser.mly"
-                ( [] )
+               ( [] )
 # 518 "parser.ml"
                : 'formals_opt))
 ; (fun __caml_parser_env ->
