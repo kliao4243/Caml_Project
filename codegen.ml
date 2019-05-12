@@ -165,7 +165,7 @@ let translate program =
       | SAssign ((_,SArrayAccess(arr, i)), e) -> 
         let e' = expr builder e in
         let arr_var = expr builder arr in
-        let idx = emxpr builder i in 
+        let idx = expr builder i in 
         let ptr = 
           L.build_gep arr_var [| idx |] "" builder 
         in 
