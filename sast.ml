@@ -31,18 +31,18 @@ type sstmt =
 type sfunc_decl = {
     styp : typ;
     sfname : string;
-    sformals : bind list;
-    slocals : bind list;
+    sformals : bind_value list;
+    slocals : bind_value list;
     sbody : sstmt list;
   }
 
 type sstruct_decl = {
-    smembers: bind list;
+    smembers: bind_value list;
     sstruct_name: string;
   }
 
 type sprogram = {
-    sglobals: bind list;
+    sglobals: bind_value list;
     sfunctions: sfunc_decl list;
     sstructs: sstruct_decl list;
 }
@@ -85,10 +85,12 @@ let rec string_of_sstmt = function
       string_of_sexpr e3  ^ ") " ^ string_of_sstmt s
   | SWhile(e, s) -> "while (" ^ string_of_sexpr e ^ ") " ^ string_of_sstmt s
   | SVdec(t,id,e) -> string_of_typ t ^ " " ^ id ^ " " ^ (string_of_sexpr e) ^ ";\n"
-  
+
+let get_second (t, id, expr) = id
+
 let string_of_sfdecl fdecl =
   string_of_typ fdecl.styp ^ " " ^
-  fdecl.sfname ^ "(" ^ String.concat ", " (List.map snd fdecl.sformals) ^
+  fdecl.sfname ^ "(" ^ String.concat ", " (List.map get_second fdecl.sformals) ^
   ")\n{\n" ^
   String.concat "" (List.map string_of_vdecl fdecl.slocals) ^
   String.concat "" (List.map string_of_sstmt fdecl.sbody) ^

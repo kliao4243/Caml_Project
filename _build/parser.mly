@@ -39,7 +39,8 @@ decls:
  | decls sdecl { {globals = $1.globals; functions = $1.functions; structs = ($2 :: $1.structs)} }
 
 vdecl:
-   typ ID SEMI { ($1, $2) }
+   typ ID SEMI { ($1, $2, Noexpr) }
+   | typ ID ASSIGN expr SEMI { ($1, $2, $4) }
 
 vdecl_list:
     /* nothing */    { [] }
@@ -55,7 +56,8 @@ fdecl:
 
 sdecl:
   STRUCT STLIT LBRACE vdecl_list RBRACE SEMI
-    {{
+    {
+    {
       struct_name = $2;
       members = $4;
     }}
@@ -65,8 +67,8 @@ formals_opt:
 	| formal_list   { $1 }
 
 formal_list:
-		typ ID                   { [($1,$2)]     }
-	| formal_list COMMA typ ID { ($3,$4) :: $1 }
+		typ ID                   { [($1,$2,Noexpr)]     }
+	| formal_list COMMA typ ID { ($3,$4,Noexpr) :: $1 }
 
 typ:
     INT   { Int   }
@@ -88,16 +90,15 @@ stmt:
 	| LBRACE stmt_list RBRACE                 { Block(List.rev $2)    }
 	| IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) }
 	| IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7)        }
-	| FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
-											  { For($3, $5, $7, $9)   }
+	| FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt										  { For($3, $5, $7, $9)   }
 	| WHILE LPAREN expr RPAREN stmt           { While($3, $5)         }
-	
+
 expr_opt:
 	/* nothing */ { Noexpr }
 	| expr          { $1 }
 
 expr:
-	LITERAL            { Literal($1)            }
+	  LITERAL          { Literal($1)            }
 	| FLIT	           { Fliteral($1)           }
 	| BLIT             { BoolLit($1)            }
 	| SLIT             { Sliteral($1)           }

@@ -16,20 +16,21 @@ let check program =
   and functions = program.functions
   in
   (* Verify a list of bindings has no void types or duplicate names *)
-  let check_binds (kind : string) (binds : bind list) =
+  let check_binds (kind : string) (binds : bind_value list) =
     List.iter (function
-	(Void, b) -> raise (Failure ("illegal void " ^ kind ^ " " ^ b))
-      | _ -> ()) binds;
+	(Void, b, _) -> raise (Failure ("illegal void " ^ kind ^ " " ^ b))
+      | (_,_,_) -> ()) 
+    binds;
+
     let rec dups = function
         [] -> ()
-      |	((_,n1) :: (_,n2) :: _) when n1 = n2 ->
+      |	((_,n1,_) :: (_,n2,_) :: _) when n1 = n2 ->
 	  raise (Failure ("duplicate " ^ kind ^ " " ^ n1))
       | _ :: t -> dups t
-    in dups (List.sort (fun (_,a) (_,b) -> compare a b) binds)
+    in dups (List.sort (fun (_,a,_) (_,b,_) -> compare a b) binds)
   in
 
   (**** Check global variables ****)
-
   check_binds "global" program.globals;
 
   (**** Check functions ****)
@@ -39,7 +40,7 @@ let check program =
     let add_bind map (name, ty) = StringMap.add name {
       typ = Void;
       fname = name; 
-      formals = [(ty, "x")];
+      formals = [(ty, "x", Literal(0))];
       locals = []; body = [] } map
     in List.fold_left add_bind StringMap.empty [ ("print", Int);
 			                         ("printb", Bool);
@@ -79,7 +80,6 @@ let check program =
         _ when StringMap.mem n map -> make_err dup_err 
       | _ -> StringMap.add n sd map
   in
-
   (* Collect all struct names into one symbol table *)
   let struct_decls = List.fold_left add_struct StringMap.empty program.structs
   in
@@ -95,6 +95,13 @@ let check program =
     check_binds "formal" func.formals;
     check_binds "local" func.locals;
 
+    let add_assign (stmts:stmt list) (local:bind_value) = match local with
+      (_,_,Noexpr) -> stmts
+     |(_,n,e) -> Expr(Assign((Id(n)),e))::stmts
+    in
+    let new_body = List.fold_left add_assign func.body func.locals
+    in
+
     (* Raise an exception if the given rvalue type cannot be assigned to
        the given lvalue type *)
     let check_assign lvaluet rvaluet err =
@@ -102,7 +109,7 @@ let check program =
     in   
 
     (* Build local symbol table of variables for this function *)
-    let symbols = List.fold_left (fun m (ty, name) -> StringMap.add name ty m)
+    let symbols = List.fold_left (fun m (ty, name, expr) -> StringMap.add name ty m)
 	                StringMap.empty (program.globals @ func.formals @ func.locals )
     in
 
@@ -111,7 +118,6 @@ let check program =
       try StringMap.find s symbols
       with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
-
 
     (* Return a semantically-checked expression, i.e., with a type *)
     let rec expr = function
@@ -165,7 +171,7 @@ let check program =
           if List.length args != param_length then
             raise (Failure ("expecting " ^ string_of_int param_length ^ 
                             " arguments in " ^ string_of_expr call))
-          else let check_call (ft, _) e = 
+          else let check_call (ft, _, _) e = 
             let (et, e') = expr e in 
             let err = "illegal argument found " ^ string_of_typ et ^
               " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e
@@ -178,7 +184,7 @@ let check program =
         in
         let sd = find_struct (string_of_typ s_type) 
         in
-          let members = List.fold_left (fun m (t,n) -> StringMap.add n t m) StringMap.empty sd.members in
+          let members = List.fold_left (fun m (t,n,_) -> StringMap.add n t m) StringMap.empty sd.members in
           (* Iterate through the members of the struct; if name found, return its type, else fail *)
           (try let tem = StringMap.find m members in 
            (tem, SSliteral(m)) 
@@ -211,7 +217,7 @@ let check program =
         Expr e -> SExpr (expr e)
       | If(p, b1, b2) -> SIf(check_bool_expr p, check_stmt b1, check_stmt b2)
       | For(e1, e2, e3, st) ->
-	  SFor(expr e1, check_bool_expr e2, expr e3, check_stmt st)
+	      SFor(expr e1, check_bool_expr e2, expr e3, check_stmt st)
       | While(p, s) -> SWhile(check_bool_expr p, check_stmt s)
       | Return e -> let (t, e') = expr e in
         if t = func.typ then SReturn (t, e') 
@@ -235,11 +241,12 @@ let check program =
       sfname = func.fname;
       sformals = func.formals;
       slocals  = func.locals;
-      sbody = match check_stmt (Block func.body) with
+      sbody = match check_stmt (Block new_body) with
 	SBlock(sl) -> sl
       | _ -> raise (Failure ("internal error: block didn't become a block?"))
     }
   in
+
   let check_struct struc = 
   { sstruct_name = struc.struct_name;
     smembers = struc.members;

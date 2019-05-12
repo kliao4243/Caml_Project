@@ -1,9 +1,8 @@
 
 int main()
 {
-  Array<int> a;
-  a = [1,2,3];
-  a[1] = 1;
-  print(a[1]);
+  Array<int> a = [123,2,3,4];
+  int b;
+  print(a[0]);
   return 0;
 }
