@@ -63,7 +63,7 @@ let check program =
   in
 
   (* Collect all function names into one symbol table *)
-  let function_decls = List.fold_left add_func built_in_decls program.functions
+  let function_decls = List.fold_left add_func built_in_decls functions
   in
   
   (* Return a function from our symbol table *)
@@ -179,8 +179,7 @@ let check program =
             let args' = List.map2 check_call fd.formals args
             in (fd.typ, SCall(fname, args'))
       | StructAccess(s, m) as sacc ->
-        let (s_type, s_id) = expr s
-        in
+        let (s_type, _) = expr s in
         let sd = find_struct (string_of_typ s_type) 
         in
           let members = List.fold_left (fun m (t,n) -> StringMap.add n t m) StringMap.empty sd.members in
@@ -216,14 +215,13 @@ let check program =
         Expr e -> SExpr (expr e)
       | If(p, b1, b2) -> SIf(check_bool_expr p, check_stmt b1, check_stmt b2)
       | For(e1, e2, e3, st) ->
-	  SFor(expr e1, check_bool_expr e2, expr e3, check_stmt st)
+	      SFor(expr e1, check_bool_expr e2, expr e3, check_stmt st)
       | While(p, s) -> SWhile(check_bool_expr p, check_stmt s)
       | Return e -> let (t, e') = expr e in
         if t = func.typ then SReturn (t, e') 
-        else raise (
-	  Failure ("return gives " ^ string_of_typ t ^ " expected " ^
+        else raise (Failure ("return gives " ^ string_of_typ t ^ " expected " ^
 		   string_of_typ func.typ ^ " in " ^ string_of_expr e))
-	    
+
 	    (* A block is correct if each statement is correct and nothing
 	       follows any Return statement.  Nested blocks are flattened. *)
       | Block sl -> 
@@ -251,7 +249,7 @@ let check program =
   }
   in
   { 
-    sglobals = program.globals;
-    sfunctions = List.map check_function program.functions;
+    sglobals = globals;
+    sfunctions = List.map check_function functions;
     sstructs = List.map check_struct program.structs;
   }
