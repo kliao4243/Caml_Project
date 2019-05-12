@@ -8,6 +8,11 @@ type uop = Neg | Not
 
 type typ = Int | Bool | Float | Void | String | Pitch | Array of typ | Struct of string
 
+<<<<<<< HEAD
+=======
+type bind = typ * string 
+
+>>>>>>> 1ef369ea50fd6e670b01a17bcabd9c53f0eaa667
 type expr =
     Literal of int
   | Fliteral of string

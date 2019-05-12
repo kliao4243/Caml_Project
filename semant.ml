@@ -47,7 +47,8 @@ let check program =
 			                         ("printf", Float);
 			                         ("printbig", Int);
                                ("prints", String);
-                               ("printp", Pitch); ]
+                               ("printp", Pitch); 
+                               ("pitch_to_int", Pitch);]
   in
 
   (* Add function name to symbol table *)
@@ -63,7 +64,7 @@ let check program =
   in
 
   (* Collect all function names into one symbol table *)
-  let function_decls = List.fold_left add_func built_in_decls program.functions
+  let function_decls = List.fold_left add_func built_in_decls functions
   in
   
   (* Return a function from our symbol table *)
@@ -166,6 +167,7 @@ let check program =
                        string_of_typ t2 ^ " in " ^ string_of_expr e))
           in (ty, SBinop((t1, e1'), op, (t2, e2')))
       | Call(fname, args) as call -> 
+<<<<<<< HEAD
           let fd = find_func fname in
           let param_length = List.length fd.formals in
           if List.length args != param_length then
@@ -179,9 +181,27 @@ let check program =
           in 
           let args' = List.map2 check_call fd.formals args
           in (fd.typ, SCall(fname, args'))
+=======
+          if fname="print" then 
+            let args' = List.map expr args in
+            (Int, SCall (fname, args'))
+          else
+            let fd = find_func fname in
+            let param_length = List.length fd.formals in
+            if List.length args != param_length then
+              raise (Failure ("expecting " ^ string_of_int param_length ^ 
+                              " arguments in " ^ string_of_expr call))
+            else let check_call (ft, _) e = 
+              let (et, e') = expr e in 
+              let err = "illegal argument found " ^ string_of_typ et ^
+                " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e
+              in (check_assign ft et err, e')
+            in 
+            let args' = List.map2 check_call fd.formals args
+            in (fd.typ, SCall(fname, args'))
+>>>>>>> 1ef369ea50fd6e670b01a17bcabd9c53f0eaa667
       | StructAccess(s, m) as sacc ->
-        let (s_type, s_id) = expr s
-        in
+        let (s_type, _) = expr s in
         let sd = find_struct (string_of_typ s_type) 
         in
           let members = List.fold_left (fun m (t,n,_) -> StringMap.add n t m) StringMap.empty sd.members in
@@ -221,10 +241,9 @@ let check program =
       | While(p, s) -> SWhile(check_bool_expr p, check_stmt s)
       | Return e -> let (t, e') = expr e in
         if t = func.typ then SReturn (t, e') 
-        else raise (
-	  Failure ("return gives " ^ string_of_typ t ^ " expected " ^
+        else raise (Failure ("return gives " ^ string_of_typ t ^ " expected " ^
 		   string_of_typ func.typ ^ " in " ^ string_of_expr e))
-	    
+
 	    (* A block is correct if each statement is correct and nothing
 	       follows any Return statement.  Nested blocks are flattened. *)
       | Block sl -> 
@@ -253,7 +272,7 @@ let check program =
   }
   in
   { 
-    sglobals = program.globals;
-    sfunctions = List.map check_function program.functions;
+    sglobals = globals;
+    sfunctions = List.map check_function functions;
     sstructs = List.map check_struct program.structs;
   }
