@@ -99,11 +99,7 @@ let translate program =
     let function_decl m fdecl =
       let name = fdecl.sfname
       and formal_types = 
-<<<<<<< HEAD
-	Array.of_list (List.map (fun (t,_,_) -> ltype_of_typ t) fdecl.sformals)
-=======
-      	Array.of_list (List.map (fun (t,_) -> ltype_of_typ t) fdecl.sformals)
->>>>>>> 1ef369ea50fd6e670b01a17bcabd9c53f0eaa667
+	     Array.of_list (List.map (fun (t,_,_) -> ltype_of_typ t) fdecl.sformals)
       in let ftype = L.function_type (ltype_of_typ fdecl.styp) formal_types in
         StringMap.add name (L.define_function name ftype the_module, fdecl) m in
         List.fold_left function_decl StringMap.empty functions in
@@ -127,7 +123,6 @@ let translate program =
 
       (* Allocate space for any locally declared variables and add the
        * resulting registers to our map *)
-<<<<<<< HEAD
       and add_local m (t, n, e) =
 
     	let local_var = L.build_alloca (ltype_of_typ t) n builder
@@ -136,18 +131,6 @@ let translate program =
           let formals = List.fold_left2 add_formal StringMap.empty fdecl.sformals
               (Array.to_list (L.params the_function)) in
           List.fold_left add_local formals fdecl.slocals 
-    
-=======
-      and add_local m (t, n) =
-    	let local_var = L.build_alloca (ltype_of_typ t) n builder
-	    in StringMap.add n local_var m 
-      in
-
-      let formals = List.fold_left2 add_formal StringMap.empty fdecl.sformals
-          (Array.to_list (L.params the_function)) in
-      List.fold_left add_local formals fdecl.slocals 
-    in
->>>>>>> 1ef369ea50fd6e670b01a17bcabd9c53f0eaa667
 
     (* Return the value for a variable or formal argument.
        Check local names first, then global names *)
