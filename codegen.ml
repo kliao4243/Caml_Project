@@ -272,7 +272,6 @@ let translate program =
                         A.Void -> ""
                       | _ -> f ^ "_result") in
          L.build_call fdef (Array.of_list llargs) result builder
->>>>>>> 15c0c129ea907ce91b66abdfd9b6aca861f09ea2
     in
     
     (* LLVM insists each basic block end with exactly one "terminator" 
