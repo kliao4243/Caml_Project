@@ -122,12 +122,16 @@ let check program =
       | Pliteral l -> (Pitch, SPliteral l)
       | Noexpr     -> (Void, SNoexpr)
       | Id s       -> (type_of_identifier s, SId s)
-      | Assign(var, e) as ex -> 
-          let lt = type_of_identifier var
-          and (rt, e') = expr e in
+
+
+      | Assign(left_e, right_e) as ex -> 
+          
+          let (lt, e1) = expr left_e 
+          and (rt, e2) = expr right_e in
           let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
             string_of_typ rt ^ " in " ^ string_of_expr ex
-          in (check_assign lt rt err, SAssign(var, (rt, e')))
+          in (check_assign lt rt err, SAssign((lt, e1), (rt, e2)))
+      
       | Unop(op, e) as ex -> 
           let (t, e') = expr e in
           let ty = match op with

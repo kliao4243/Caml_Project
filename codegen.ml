@@ -162,8 +162,20 @@ let translate program =
       | SPliteral p -> L.build_global_stringptr p "4#" builder
       | SNoexpr     -> L.const_int i32_t 0
       | SId s       -> L.build_load (lookup s) s builder
-      | SAssign (s, e) -> let e' = expr builder e in
-                          ignore(L.build_store e' (lookup s) builder); e'
+      | SAssign ((_,SArrayAccess(arr, i)), e) -> 
+        let e' = expr builder e in
+        let arr_var = expr builder arr in
+        let idx = emxpr builder i in 
+        let ptr = 
+          L.build_gep arr_var [| idx |] "" builder 
+        in 
+        ignore(L.build_store e' ptr builder); e'
+      | SAssign (e1, e2) -> 
+      let e2' = expr builder e2 in
+      (match snd e1 with
+           SId s -> ignore(L.build_store e2' (lookup s) builder); e2'
+          | _ -> raise (Failure ("Not implemented in codegen"))
+      ) 
       | SBinop ((A.Float,_ ) as e1, op, e2) ->
 	  let e1' = expr builder e1
 	  and e2' = expr builder e2 in

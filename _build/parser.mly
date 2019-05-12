@@ -21,7 +21,7 @@ open Ast
 %right ASSIGN
 %left OR
 %left AND
-%left EQ NEQ LSQUARE RSQUARE
+%left EQ NEQ LSQUARE RSQUARE DOT
 %left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
@@ -97,7 +97,7 @@ expr_opt:
 	| expr          { $1 }
 
 expr:
-	LITERAL          { Literal($1)            }
+	LITERAL            { Literal($1)            }
 	| FLIT	           { Fliteral($1)           }
 	| BLIT             { BoolLit($1)            }
 	| SLIT             { Sliteral($1)           }
@@ -122,7 +122,7 @@ expr:
 	| expr LSQUARE expr RSQUARE { ArrayAccess($1, $3) }
 	| MINUS expr %prec NOT { Unop(Neg, $2)      }
 	| NOT expr         { Unop(Not, $2)          }
-	| ID ASSIGN expr   { Assign($1, $3)         }
+	| expr ASSIGN expr { Assign($1, $3)         }
 	| ID LPAREN args_opt RPAREN { Call($1, $3)  }
 	| LPAREN expr RPAREN { $2                   }
 	| LSQUARE args_opt RSQUARE   { ArrayLit($2) }

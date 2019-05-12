@@ -21,7 +21,7 @@ type expr =
   | Id of string
   | Binop of expr * op * expr
   | Unop of uop * expr
-  | Assign of string * expr
+  | Assign of expr * expr
   | Call of string * expr list
   | StructAccess of expr * string
   | Noexpr
@@ -33,6 +33,7 @@ type stmt =
   | If of expr * stmt * stmt
   | For of expr * expr * expr * stmt
   | While of expr * stmt
+  | Vdec of typ * string * expr
 
 type func_decl = {
     typ : typ;
@@ -88,12 +89,22 @@ let rec string_of_expr = function
   | Binop(e1, o, e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
-  | Assign(v, e) -> v ^ " = " ^ string_of_expr e
+  | Assign(e1, e2) -> string_of_expr e1 ^ " = " ^ string_of_expr e2
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | StructAccess(s, n) ->
     (string_of_expr s) ^ "." ^ n
   | Noexpr -> ""
+
+let rec string_of_typ = function
+    Int -> "int"
+  | Bool -> "bool"
+  | Float -> "float"
+  | Void -> "void"
+  | String -> "string"
+  | Array x -> "array<" ^ (string_of_typ x) ^ ">"
+  | Pitch -> "Pitch"
+  | Struct(id) -> id
 
 let rec string_of_stmt = function
     Block(stmts) ->
@@ -107,17 +118,8 @@ let rec string_of_stmt = function
       "for (" ^ string_of_expr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^
       string_of_expr e3  ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
-
-let rec string_of_typ = function
-    Int -> "int"
-  | Bool -> "bool"
-  | Float -> "float"
-  | Void -> "void"
-  | String -> "string"
-  | Array x -> "array<" ^ (string_of_typ x) ^ ">"
-  | Pitch -> "Pitch"
-  | Struct(id) -> id
-
+  | Vdec(t,id,e) -> string_of_typ t ^ " " ^ id ^ " " ^ (string_of_expr e) ^ ";\n"
+  
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
 let string_of_fdecl fdecl =
