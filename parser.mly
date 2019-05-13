@@ -78,7 +78,7 @@ typ:
   | STR   { String }
   | PITCH { Pitch }
   | STLIT { Struct($1) }
-  | ARRAY LT typ GT  { Array($3) }
+  | typ LSQUARE LITERAL RSQUARE { Array($1,$3) }
 
 stmt_list:
 		/* nothing */  { [] }

@@ -194,16 +194,21 @@ let check program =
            (tem, SStructAccess(ss,m)) 
            with Not_found -> raise (Failure ("illegal member " ^ m ^ " of struct " ^ string_of_expr sacc)))
       | ArrayLit vals ->
-         let (t', _) = expr (List.hd vals) in
+         let length = List.length vals in
+         let (t',_) = expr (List.hd vals) in
          let map_func lit = expr lit in
          let vals' = List.map map_func vals in
          (* TODO: check that all vals are of the same type *)
-         (Array t', SArrayLit(vals'))
+         (Array (t',length), SArrayLit(vals'))
       | ArrayAccess (var, idx) ->   
         let (t1, se1) = expr var in
         let (t2, se2) = expr idx in
+        let get_int e = match e with 
+          Literal l -> l 
+          | _ -> 0 
+        in
         let t3 = match t1 with 
-            Array(t) -> t
+            Array(t,size) -> if (get_int idx) < size then t else raise (Failure ("index out of bound"))
           | _ -> raise (Failure ("not an array"))
         in
         if t2 = Int then (t3, SArrayAccess((t1, se1), (t2, se2)))

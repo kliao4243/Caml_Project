@@ -6,7 +6,7 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 type uop = Neg | Not
 
 
-type typ = Int | Bool | Float | Void | String | Pitch | Array of typ | Struct of string
+type typ = Int | Bool | Float | Void | String | Pitch | Array of typ * int | Struct of string
 
 type expr =
     Literal of int
@@ -102,7 +102,7 @@ let rec string_of_typ = function
   | Float -> "float"
   | Void -> "void"
   | String -> "string"
-  | Array x -> "array<" ^ (string_of_typ x) ^ ">"
+  | Array (x,size) -> (string_of_typ x) ^ "["^(string_of_int size)^"]" 
   | Pitch -> "Pitch"
   | Struct(id) -> id
 
