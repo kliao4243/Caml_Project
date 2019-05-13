@@ -1,6 +1,6 @@
 (* Abstract Syntax Tree and functions for printing it *)
 
-type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
+type op = Add | Sub | Mult | Div | Con | Equal | Neq | Less | Leq | Greater | Geq |
           And | Or | Mod
 
 type uop = Neg | Not
@@ -62,6 +62,7 @@ let string_of_op = function
   | Sub -> "-"
   | Mult -> "*"
   | Div -> "/"
+  | Con -> "@"
   | Equal -> "=="
   | Neq -> "!="
   | Less -> "<"
@@ -83,7 +84,7 @@ let rec string_of_expr = function
   | Pliteral(l) -> l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
-  | ArrayLit(_) -> "Array_literal"
+  | ArrayLit(el) -> "[" ^ String.concat ", " (List.map string_of_expr el) ^ "]"
   | ArrayAccess(s,e) -> "Array_access" ^ " "^ string_of_expr s ^ " " ^string_of_expr e
   | Id(s) -> s
   | Binop(e1, o, e2) ->

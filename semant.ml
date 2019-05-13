@@ -106,7 +106,7 @@ let check program =
     (* Raise an exception if the given rvalue type cannot be assigned to
        the given lvalue type *)
     let check_assign lvaluet rvaluet err =
-       if lvaluet = rvaluet then lvaluet else raise (Failure err)
+        if lvaluet = rvaluet then lvaluet else raise (Failure err)
     in   
 
     (* Build local symbol table of variables for this function *)
@@ -147,12 +147,24 @@ let check program =
                                  string_of_uop op ^ string_of_typ t ^
                                  " in " ^ string_of_expr ex))
           in (ty, SUnop(op, (t, e')))
+
+      
+
       | Binop(e1, op, e2) as e -> 
-          let (t1, e1') = expr e1 
-          and (t2, e2') = expr e2 in
-          (* All binary operators require operands of the same type *)
+        let (t1, e1') = expr e1 
+        and (t2, e2') = expr e2 in 
+        let tem_func tem_e = match tem_e with 
+         Binop(_, Con, _)->
+          let get_arr_info arr = match arr with (Array(t,l),SArrayLit(vals)) -> t,l,vals in
+          let (arr_t1,arr_l1,var_list1) = get_arr_info (expr e1) in
+          let (arr_t2,arr_l2,var_list2) = get_arr_info (expr e2) in
+          let same = arr_t1 = arr_t2 in
+          let new_vals = (List.concat [var_list1;var_list2]) in
+          let length = (List.length new_vals) in
+          if same then (Array (arr_t1,length), SArrayLit(new_vals))
+          else raise (Failure ("illegal concatenation."))
+         |_ ->
           let same = t1 = t2 in
-          (* Determine expression type based on operator and operand types *)
           let ty = match op with
             Add | Sub | Mult | Div | Mod when same && t1 = Int   -> Int
           | Add | Sub | Mult | Div | Mod when same && t1 = Float -> Float
@@ -161,10 +173,13 @@ let check program =
                      when same && (t1 = Int || t1 = Float) -> Bool
           | And | Or when same && t1 = Bool -> Bool
           | _ -> raise (
-	      Failure ("illegal binary operator " ^
+            Failure ("illegal binary operator " ^
                        string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
                        string_of_typ t2 ^ " in " ^ string_of_expr e))
           in (ty, SBinop((t1, e1'), op, (t2, e2')))
+         in
+         tem_func e
+          (* Determine expression type based on operator and operand types *)
       | Call(fname, args) as call -> 
           if fname="print" then 
             let args' = List.map expr args in

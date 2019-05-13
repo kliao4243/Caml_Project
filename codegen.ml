@@ -227,7 +227,7 @@ let translate program =
            SId s -> ignore(L.build_store e2' (lookup s) builder); e2'
           | _ -> raise (Failure ("Not implemented in codegen"))
       ) 
-      | SBinop ((A.Float,_ ) as e1, op, e2) ->
+      | SBinop ((A.Float,_) as e1, op, e2) ->
     let e1' = expr builder e1
     and e2' = expr builder e2 in
     (match op with 

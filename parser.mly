@@ -4,7 +4,7 @@
 open Ast
 %}
 %token QUOTE APOSTROPHE COLON LSQUARE RSQUARE 
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE MOD ASSIGN
+%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE CONCAT MOD ASSIGN
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR DOT
 %token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID STR PITCH STRUCT
 %token <int> LITERAL
@@ -25,6 +25,7 @@ open Ast
 %left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
+%left CONCAT
 %right NOT
 %left DOT
 %%
@@ -108,7 +109,7 @@ expr:
 	| expr MINUS  expr { Binop($1, Sub,   $3)   }
 	| expr TIMES  expr { Binop($1, Mult,  $3)   }
 	| expr DIVIDE expr { Binop($1, Div,   $3)   }
-
+	| expr CONCAT expr { Binop($1, Con,   $3)   }
 	| expr MOD    expr { Binop($1, Mod,   $3)   }
 
 	| expr EQ     expr { Binop($1, Equal, $3)   }

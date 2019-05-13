@@ -12,8 +12,8 @@ declare i8* @pitch_to_int(i8*, ...)
 
 define i32 @main() {
 entry:
-  %tem = alloca { i32* }
-  %malloccall = tail call i8* @malloc(i32 mul (i32 ptrtoint (i32* getelementptr (i32, i32* null, i32 1) to i32), i32 3))
+  %a = alloca i32*
+  %malloccall = tail call i8* @malloc(i32 mul (i32 ptrtoint (i32* getelementptr (i32, i32* null, i32 1) to i32), i32 9))
   %0 = bitcast i8* %malloccall to i32*
   %1 = getelementptr i32, i32* %0, i32 0
   store i32 1, i32* %1
@@ -21,17 +21,23 @@ entry:
   store i32 2, i32* %2
   %3 = getelementptr i32, i32* %0, i32 2
   store i32 3, i32* %3
-  %struct.ptr = getelementptr inbounds { i32* }, { i32* }* %tem, i32 0, i32 0
-  store i32* %0, i32** %struct.ptr
-  %struct.ptr1 = getelementptr inbounds { i32* }, { i32* }* %tem, i32 0, i32 0
-  %struct.val.pitch = load i32*, i32** %struct.ptr1
-  %4 = getelementptr i32, i32* %struct.val.pitch, i32 2
-  store i32 111, i32* %4
-  %struct.ptr2 = getelementptr inbounds { i32* }, { i32* }* %tem, i32 0, i32 0
-  %struct.val.pitch3 = load i32*, i32** %struct.ptr2
-  %5 = getelementptr i32, i32* %struct.val.pitch3, i32 2
-  %6 = load i32, i32* %5
-  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @fmt, i32 0, i32 0), i32 %6)
+  %4 = getelementptr i32, i32* %0, i32 3
+  store i32 1, i32* %4
+  %5 = getelementptr i32, i32* %0, i32 4
+  store i32 2, i32* %5
+  %6 = getelementptr i32, i32* %0, i32 5
+  store i32 1, i32* %6
+  %7 = getelementptr i32, i32* %0, i32 6
+  store i32 2, i32* %7
+  %8 = getelementptr i32, i32* %0, i32 7
+  store i32 3, i32* %8
+  %9 = getelementptr i32, i32* %0, i32 8
+  store i32 4, i32* %9
+  store i32* %0, i32** %a
+  %a1 = load i32*, i32** %a
+  %10 = getelementptr i32, i32* %a1, i32 8
+  %11 = load i32, i32* %10
+  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @fmt, i32 0, i32 0), i32 %11)
   ret i32 0
 }
 
