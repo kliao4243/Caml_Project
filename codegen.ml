@@ -43,7 +43,7 @@ let translate program =
   let str_t      = L.pointer_type i8_t
   in
   (* Return the LLVM type for a MicroC type *)
-  let rec ltype_of_typ = function
+  let rec ltype_of_primitive = function
       A.Int    -> i32_t
     | A.Bool   -> i1_t
     | A.Float  -> float_t
@@ -51,19 +51,21 @@ let translate program =
     | A.Void   -> void_t
     | A.Pitch -> pitch_t
     | A.Struct n -> struct_t n
-    | A.Array array_typ -> L.pointer_type (ltype_of_typ array_typ) 
+    | A.Array array_typ -> L.pointer_type (ltype_of_primitive array_typ) 
   in
-
-
   (* Create a map of global variables after creating each *)
   let global_vars : L.llvalue StringMap.t =
     let global_var m (t, n, e) = 
       let init = match t with
-          A.Float -> L.const_float (ltype_of_typ t) 0.0
-        | _ -> L.const_int (ltype_of_typ t) 0
+          A.Float -> L.const_float (ltype_of_primitive t) 0.0
+        | _ -> L.const_int (ltype_of_primitive t) 0
       in StringMap.add n (L.define_global n init the_module) m in
-    List.fold_left global_var StringMap.empty globals in
-
+    List.fold_left global_var StringMap.empty globals 
+  in
+  let global_var_types = 
+  let global_var_type m (t, n, e) = StringMap.add n t m 
+  in List.fold_left global_var_type StringMap.empty globals
+  in
   let printf_t : L.lltype = 
       L.var_arg_function_type i32_t [| str_t |] in
   let printf_func : L.llvalue = 
@@ -85,14 +87,17 @@ let translate program =
   let struct_decls = 
     let struct_decl m sdecl =
       let name = sdecl.sstruct_name
-      and member_types = Array.of_list (List.map (fun (t,_,_) -> ltype_of_typ t) sdecl.smembers)
+      and member_types = Array.of_list (List.map (fun (t,_,_) -> ltype_of_primitive t) sdecl.smembers)
       in let stype = L.struct_type context member_types in
       StringMap.add name (stype, sdecl.smembers) m in
     List.fold_left struct_decl StringMap.empty structs
   in
   let struct_lookup n = try StringMap.find n struct_decls
     with Not_found -> raise (Failure ("struct " ^ n ^ " not found")) in
-
+  let rec ltype_of_typ = function
+    A.Struct n -> fst (struct_lookup n) 
+    | t -> ltype_of_primitive t
+  in
   (* Define each function (arguments and return type) so we can 
      call it even before we've created its body *)
   let function_decls : (L.llvalue * sfunc_decl) StringMap.t =
@@ -131,7 +136,14 @@ let translate program =
           let formals = List.fold_left2 add_formal StringMap.empty fdecl.sformals
               (Array.to_list (L.params the_function)) in
           List.fold_left add_local formals fdecl.slocals 
-
+    in
+    let local_var_types =
+      let add_item m (t, n, _) =
+        StringMap.add n t m
+      in let formals = List.fold_left add_item StringMap.empty fdecl.sformals in
+      List.fold_left add_item formals fdecl.slocals
+    in let lookup_type n = try StringMap.find n local_var_types
+                       with Not_found -> StringMap.find n global_var_types
     (* Return the value for a variable or formal argument.
        Check local names first, then global names *)
     in let lookup n = try StringMap.find n local_vars
@@ -159,6 +171,19 @@ let translate program =
               let _ = (L.build_store elem cptr builder) 
               in i+1)
               0 all_elem); ptr
+      | SStructAccess(s, m) -> 
+        let (stype,location) = match s with
+        (t,SId id) ->  (t, lookup id)
+        | _ -> raise (Failure("Illegal struct-type."))
+        in
+        let members = snd (struct_lookup (A.string_of_typ stype)) in
+          let rec get_idx n lst i = match lst with
+              | [] -> raise (Failure("Id " ^ m ^ " is not a member of " ^ string_of_sexpr s))
+              | hd::tl -> if hd=n then i else get_idx n tl (i+1)
+            in let idx = (get_idx m (List.map (fun (_,nm,_) -> nm) members) 0) in
+            let ptr = L.build_struct_gep location idx ("struct.ptr") builder in
+        L.build_load ptr ("struct.val."^m) builder
+      
       | SArrayAccess(arr, i) ->
         let arr_var = expr builder arr in
         let idx = expr builder i in 
@@ -169,6 +194,25 @@ let translate program =
       | SPliteral p -> L.build_global_stringptr p "4#" builder
       | SNoexpr     -> L.const_int i32_t 0
       | SId s       -> L.build_load (lookup s) s builder
+      
+
+      | SAssign ((_,SStructAccess(s,m)), e) ->
+          let e' = expr builder e in
+          let (stype,location) = match s with
+          (t,SId id) ->  (t, lookup id)
+          | _ -> raise (Failure("Illegal struct-type."))
+          in
+            let members = snd (struct_lookup (A.string_of_typ stype)) in
+              let rec get_idx n lst i = match lst with
+                | [] -> raise (Failure("Id " ^ m ^ " is not a member of struct " ^ string_of_sexpr s))
+                | hd::tl -> if (hd=n) then i else get_idx n tl (i+1)
+              in
+              let idx = get_idx m (List.map (fun (_,nm,_) -> nm) members) 0 in
+            let ptr = L.build_struct_gep location idx "struct.ptr" builder in
+          ignore(L.build_store e' ptr builder); e'
+
+
+
       | SAssign ((_,SArrayAccess(arr, i)), e) -> 
         let e' = expr builder e in
         let arr_var = expr builder arr in
@@ -225,21 +269,21 @@ let translate program =
 	    A.Neg when t = A.Float -> L.build_fneg 
 	  | A.Neg                  -> L.build_neg
           | A.Not                  -> L.build_not) e' "tmp" builder
-      | SCall ("print", [t,e]) | SCall ("printb", [t,e]) ->
-				(match t with 
-				A.Int -> L.build_call printf_func [| int_format_str ; (expr builder (t,e)) |] "printf" builder
-				| A.String -> L.build_call prints_func [| (expr builder (t,e)) |] "prints" builder
-				| A.Float -> L.build_call printf_func [| float_format_str ; (expr builder (t,e)) |] "printf" builder
-				| A.Pitch -> L.build_call prints_func [|(expr builder (t,e)) |] "prints" builder
-				| _ -> raise (Failure (A.string_of_typ t)))
-      | SCall ("pitch_to_int", e) -> L.build_call pitch_to_int_func [|expr builder (List.hd e)|] "pitchtoint" builder
-      | SCall (f, args) ->
-         let (fdef, fdecl) = StringMap.find f function_decls in
-      	 let llargs = List.rev (List.map (expr builder) (List.rev args)) in
-	       let result = (match fdecl.styp with 
-                        A.Void -> ""
-                      | _ -> f ^ "_result") in
-         L.build_call fdef (Array.of_list llargs) result builder
+    | SCall ("print", [t,e]) | SCall ("printb", [t,e]) ->
+			(match t with 
+			A.Int -> L.build_call printf_func [| int_format_str ; (expr builder (t,e)) |] "printf" builder
+			| A.String -> L.build_call prints_func [| (expr builder (t,e)) |] "prints" builder
+			| A.Float -> L.build_call printf_func [| float_format_str ; (expr builder (t,e)) |] "printf" builder
+			| A.Pitch -> L.build_call prints_func [|(expr builder (t,e)) |] "prints" builder
+			| _ -> raise (Failure (A.string_of_typ t)))
+    | SCall ("pitch_to_int", e) -> L.build_call pitch_to_int_func [|expr builder (List.hd e)|] "pitchtoint" builder
+    | SCall (f, args) ->
+       let (fdef, fdecl) = StringMap.find f function_decls in
+    	 let llargs = List.rev (List.map (expr builder) (List.rev args)) in
+       let result = (match fdecl.styp with 
+                      A.Void -> ""
+                    | _ -> f ^ "_result") in
+       L.build_call fdef (Array.of_list llargs) result builder
     in
     
     (* LLVM insists each basic block end with exactly one "terminator" 
@@ -256,7 +300,7 @@ let translate program =
        after the one generated by this call) *)
 
     let rec stmt builder = function
-	SBlock sl -> List.fold_left stmt builder sl
+	      SBlock sl -> List.fold_left stmt builder sl
       | SExpr e -> ignore(expr builder e); builder 
       | SReturn e -> ignore(match fdecl.styp with
                               (* Special "return nothing" instr *)

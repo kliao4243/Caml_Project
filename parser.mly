@@ -20,13 +20,13 @@ open Ast
 %nonassoc ELSE
 %right ASSIGN
 %left OR
-%left AND
-%left EQ NEQ LSQUARE RSQUARE DOT
+%left AND 
+%left EQ NEQ LSQUARE RSQUARE 
 %left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
 %right NOT
-
+%left DOT
 %%
 
 program:

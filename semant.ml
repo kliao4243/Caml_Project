@@ -132,7 +132,6 @@ let check program =
 
 
       | Assign(left_e, right_e) as ex -> 
-          
           let (lt, e1) = expr left_e 
           and (rt, e2) = expr right_e in
           let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
@@ -185,13 +184,14 @@ let check program =
             let args' = List.map2 check_call fd.formals args
             in (fd.typ, SCall(fname, args'))
       | StructAccess(s, m) as sacc ->
-        let (s_type, _) = expr s in
+        let ss = expr s in
+        let s_type = fst ss in
         let sd = find_struct (string_of_typ s_type) 
         in
           let members = List.fold_left (fun m (t,n,_) -> StringMap.add n t m) StringMap.empty sd.members in
           (* Iterate through the members of the struct; if name found, return its type, else fail *)
           (try let tem = StringMap.find m members in 
-           (tem, SSliteral(m)) 
+           (tem, SStructAccess(ss,m)) 
            with Not_found -> raise (Failure ("illegal member " ^ m ^ " of struct " ^ string_of_expr sacc)))
       | ArrayLit vals ->
          let (t', _) = expr (List.hd vals) in

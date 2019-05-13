@@ -1,11 +1,22 @@
-int b;
-int foo(){  
-  print(b);
-}
+struct _chord{
+	Pitch a;
+	Pitch b;
+	Pitch c;
+};
+struct _track{
+	String name;
+	String instrument;
+	Array<_chord> note;
+	Array<int> rhythm;
+};
+
 int main()
 {
-  Array<int> a = [123,2,3,4];
-  int b;
-  print(a[0]);
-  return 0;
+	Array<float> b;
+	_track c;
+	c.name = "abccc";
+	b = [1.0,2.0,3.2];
+	b[0] = 2.0;
+	print(b[100]);
+	return 0;
 }
