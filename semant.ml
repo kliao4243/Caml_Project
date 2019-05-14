@@ -111,9 +111,11 @@ let check program =
     let check_argument lvaluet rvaluet err = match (lvaluet,rvaluet) with
       (Array(t1,_),Array(t2,_)) -> if t1 = t2 then lvaluet else raise (Failure err)
       | _ -> if lvaluet = rvaluet then rvaluet else raise (Failure err)
-
     in   
-
+    let check_equal lvaluet rvaluet = match (lvaluet,rvaluet) with
+      (Array(t1,_),Array(t2,_)) -> t1 = t2 
+      | _ -> lvaluet = rvaluet
+    in
     (* Build local symbol table of variables for this function *)
     let symbols = List.fold_left (fun m (ty, name, expr) -> StringMap.add name ty m)
 	                StringMap.empty (program.globals @ func.formals @ func.locals )
@@ -158,6 +160,7 @@ let check program =
       | Binop(e1, op, e2) as e -> 
         let (t1, e1') = expr e1 
         and (t2, e2') = expr e2 in 
+<<<<<<< HEAD
         let tem_func tem_e = match tem_e with 
          Binop(_, Con, _)->
           let get_arr_info arr = match arr with (Array(t,l),SArrayLit(vals)) -> t,l,vals in
@@ -171,19 +174,23 @@ let check program =
          |_ ->
           let same = t1 = t2 in
           let ty = match op with
+=======
+        let same = check_equal t1 t2 in
+          let ty = (match op with
+>>>>>>> d8cf479ae868281cee8f69771f4ebf8271deb7cb
             Add | Sub | Mult | Div | Mod when same && t1 = Int   -> Int
           | Add | Sub | Mult | Div | Mod when same && t1 = Float -> Float
           | Equal | Neq            when same               -> Bool
           | Less | Leq | Greater | Geq
                      when same && (t1 = Int || t1 = Float) -> Bool
           | And | Or when same && t1 = Bool -> Bool
+          | Con when same -> (match (t1,t2) with (Array(t1,sz1),Array(t2,sz2))-> Array(t1,sz1+sz2)
+                                                |_-> raise (Failure"illegal binary operator concat"))
           | _ -> raise (
             Failure ("illegal binary operator " ^
                        string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
-                       string_of_typ t2 ^ " in " ^ string_of_expr e))
+                       string_of_typ t2 ^ " in " ^ string_of_expr e)))
           in (ty, SBinop((t1, e1'), op, (t2, e2')))
-         in
-         tem_func e
           (* Determine expression type based on operator and operand types *)
       | Call(fname, args) as call -> 
           (match fname with 
