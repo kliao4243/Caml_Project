@@ -15,7 +15,7 @@ let check program =
   (* Verify a list of bindings has no void types or duplicate names *)
   let check_binds (kind : string) (binds : bind_value list) =
     List.iter (function
-	(Void, b, _) -> raise (Failure ("illegal void " ^ kind ^ " " ^ b))
+	    (Void, b, _) -> raise (Failure ("illegal void " ^ kind ^ " " ^ b))
       | (_,_,_) -> ()) 
     binds;
 
@@ -122,9 +122,16 @@ let check program =
     (* Raise an exception if the given rvalue type cannot be assigned to
        the given lvalue type *)
     let check_assign lvaluet rvaluet err =
-       if lvaluet = rvaluet then lvaluet else raise (Failure err)
+        if lvaluet = rvaluet then lvaluet else raise (Failure err)
+    in
+    let check_argument lvaluet rvaluet err = match (lvaluet,rvaluet) with
+      (Array(t1,_),Array(t2,_)) -> if t1 = t2 then lvaluet else raise (Failure err)
+      | _ -> if lvaluet = rvaluet then rvaluet else raise (Failure err)
     in   
-
+    let check_equal lvaluet rvaluet = match (lvaluet,rvaluet) with
+      (Array(t1,_),Array(t2,_)) -> t1 = t2 
+      | _ -> lvaluet = rvaluet
+    in
     (* Build local symbol table of variables for this function *)
     let symbols = List.fold_left (fun m (ty, name, expr) -> StringMap.add name ty m)
 	                StringMap.empty (program_with_include.globals @ func.formals @ func.locals )
@@ -163,29 +170,34 @@ let check program =
                                  string_of_uop op ^ string_of_typ t ^
                                  " in " ^ string_of_expr ex))
           in (ty, SUnop(op, (t, e')))
+
+      
+
       | Binop(e1, op, e2) as e -> 
-          let (t1, e1') = expr e1 
-          and (t2, e2') = expr e2 in
-          (* All binary operators require operands of the same type *)
-          let same = t1 = t2 in
-          (* Determine expression type based on operator and operand types *)
-          let ty = match op with
+        let (t1, e1') = expr e1 
+        and (t2, e2') = expr e2 in 
+        let same = check_equal t1 t2 in
+          let ty = (match op with
             Add | Sub | Mult | Div | Mod when same && t1 = Int   -> Int
           | Add | Sub | Mult | Div | Mod when same && t1 = Float -> Float
           | Equal | Neq            when same               -> Bool
           | Less | Leq | Greater | Geq
                      when same && (t1 = Int || t1 = Float) -> Bool
           | And | Or when same && t1 = Bool -> Bool
+          | Con when same -> (match (t1,t2) with (Array(t1,sz1),Array(t2,sz2))-> Array(t1,sz1+sz2)
+                                                |_-> raise (Failure"illegal binary operator concat"))
           | _ -> raise (
-	      Failure ("illegal binary operator " ^
+            Failure ("illegal binary operator " ^
                        string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
-                       string_of_typ t2 ^ " in " ^ string_of_expr e))
+                       string_of_typ t2 ^ " in " ^ string_of_expr e)))
           in (ty, SBinop((t1, e1'), op, (t2, e2')))
+          (* Determine expression type based on operator and operand types *)
       | Call(fname, args) as call -> 
-          if fname="print" then 
-            let args' = List.map expr args in
-            (Int, SCall (fname, args'))
-          else
+          (match fname with 
+          | "size" | "print" -> 
+              let args' = List.map expr args in
+                      (Int, SCall (fname, args'))
+          | _ ->
             let fd = find_func fname in
             let param_length = List.length fd.formals in
             if List.length args != param_length then
@@ -195,10 +207,10 @@ let check program =
               let (et, e') = expr e in 
               let err = "illegal argument found " ^ string_of_typ et ^
                 " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e
-              in (check_assign ft et err, e')
+              in (check_argument ft et err, e')
             in 
             let args' = List.map2 check_call fd.formals args
-            in (fd.typ, SCall(fname, args'))
+            in (fd.typ, SCall(fname, args')))
       | StructAccess(s, m) as sacc ->
         let ss = expr s in
         let s_type = fst ss in
