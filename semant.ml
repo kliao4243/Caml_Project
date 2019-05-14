@@ -12,9 +12,6 @@ module StringMap = Map.Make(String)
 
 let check program =
 
-  let globals = program.globals
-  and functions = program.functions
-  in
   (* Verify a list of bindings has no void types or duplicate names *)
   let check_binds (kind : string) (binds : bind_value list) =
     List.iter (function
@@ -256,12 +253,30 @@ let check program =
   in
 
   let check_struct struc = 
-  { sstruct_name = struc.struct_name;
+  { 
+    sstruct_name = struc.struct_name;
     smembers = struc.members;
   }
   in
+
+  let rec add_all_include (all_program: A.Program) = 
+    let add_current_include (current_program: A.Program)(A.Include(incl) : A.include_decl) = 
+      let file_in = open_in incl in
+      let lexbuf = Lexing.from_channel file_in in
+      let import_program = Parser.program Scanner.token lexbuf in
+      let (after_import_program: A.Program) = add_all_include import_program in
+      ignore(close_in file_in);
+      {
+        globals = current_program.globals;
+        functions = after_import_program.functions@current_program.functions;
+        structs = after_import_program.structs@current_program.structs; 
+        includes = after_import_program.includes
+      }
+    in List.fold_left add_current_include all_program all_program.includes
+  
+  let program_with_include = add_all_include program in
   { 
-    sglobals = globals;
-    sfunctions = List.map check_function functions;
-    sstructs = List.map check_struct program.structs;
+    sglobals = program_with_include.globals;
+    sfunctions = List.map check_function program_with_include.functions;
+    sstructs = List.map check_struct program_with_include.structs;
   }

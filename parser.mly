@@ -3,8 +3,8 @@
 %{
 open Ast
 %}
-%token QUOTE APOSTROPHE COLON LSQUARE RSQUARE 
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE MOD ASSIGN
+%token QUOTE APOSTROPHE COLON LSQUARE RSQUARE INCLUDE
+%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE MOD ASSIGN POUND
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR DOT
 %token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID STR PITCH STRUCT
 %token <int> LITERAL
@@ -33,11 +33,23 @@ program:
 	decls EOF { $1 }
 
 decls:
-   /* nothing */ { {globals=[]; functions=[]; structs=[]} }
- | decls vdecl { {globals = ($2 :: $1.globals); functions = $1.functions; structs = $1.structs} }
- | decls fdecl { {globals = $1.globals; functions = ($2 :: $1.functions); structs = $1.structs} }
- | decls sdecl { {globals = $1.globals; functions = $1.functions; structs = ($2 :: $1.structs)} }
+   /* nothing */ { {includes=[]; globals=[]; functions=[]; structs=[]} }
+ | decls includes {{includes = $2 :: $1.includes}; globals = $1.globals; functions = $1.functions; structs = $1.structs}}
+ | decls vdecl { {includes = $1.includes; globals = ($2 :: $1.globals); functions = $1.functions; structs = $1.structs} }
+ | decls fdecl { {includes = $1.includes; globals = $1.globals; functions = ($2 :: $1.functions); structs = $1.structs} }
+ | decls sdecl { {includes = $1.includes; globals = $1.globals; functions = $1.functions; structs = ($2 :: $1.structs)} }
 
+includes:
+    /* nothing */     { [] }
+    |   include_list  { $1 }
+
+include_list:
+      include_decl              { [$1] }
+    |   include_list include_decl { $1@[$2] }
+
+include_decl:
+  POUND INCLUDE STRINGLIT SEMI { Include($3) }
+ 
 vdecl:
    typ ID SEMI { ($1, $2, Noexpr) }
    | typ ID ASSIGN expr SEMI { ($1, $2, $4) }

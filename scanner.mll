@@ -50,6 +50,8 @@ rule token = parse
 | "void"   { VOID }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
+| "#"		{ POUND }
+| "include"     { INCLUDE }
 | "Array" 		{ ARRAY }
 | digits as lxm { LITERAL(int_of_string lxm) }
 | digits '.'  digit* ( ['e' 'E'] ['+' '-']? digits )? as lxm { FLIT(lxm) }
