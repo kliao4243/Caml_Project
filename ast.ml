@@ -5,7 +5,6 @@ type op = Add | Sub | Mult | Div | Con | Equal | Neq | Less | Leq | Greater | Ge
 
 type uop = Neg | Not
 
-
 type typ = Int | Bool | Float | Void | String | Pitch | Array of typ * int | Struct of string
 
 type expr =

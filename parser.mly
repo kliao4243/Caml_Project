@@ -21,11 +21,11 @@ open Ast
 %right ASSIGN
 %left OR
 %left AND 
-%left EQ NEQ LSQUARE RSQUARE 
+%left EQ NEQ 
 %left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
-%left CONCAT
+%left CONCAT LSQUARE RSQUARE 
 %right NOT
 %left DOT
 %%
@@ -80,6 +80,7 @@ typ:
   | PITCH { Pitch }
   | STLIT { Struct($1) }
   | typ LSQUARE LITERAL RSQUARE { Array($1,$3) }
+  | typ LSQUARE RSQUARE { Array($1,1000) }
 
 stmt_list:
 		/* nothing */  { [] }

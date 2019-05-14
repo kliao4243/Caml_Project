@@ -1,5 +1,15 @@
+struct _student{
+	int a;
+	int b;
+};
+int sum(int[] x,int[] y){
+	return (x[0] + y[0]);
+}
 int main()
 {	
-	int[9] a = [1,2,3]@[1,2]@[1,2,3,4];
-	print(a[8]);
+	int i;
+	int j;
+	int[2] a = [1,2];
+	int[2] b = [3,4];
+	print(sum(a,b));
 }

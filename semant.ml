@@ -18,7 +18,7 @@ let check program =
   (* Verify a list of bindings has no void types or duplicate names *)
   let check_binds (kind : string) (binds : bind_value list) =
     List.iter (function
-	(Void, b, _) -> raise (Failure ("illegal void " ^ kind ^ " " ^ b))
+	    (Void, b, _) -> raise (Failure ("illegal void " ^ kind ^ " " ^ b))
       | (_,_,_) -> ()) 
     binds;
 
@@ -107,6 +107,11 @@ let check program =
        the given lvalue type *)
     let check_assign lvaluet rvaluet err =
         if lvaluet = rvaluet then lvaluet else raise (Failure err)
+    in
+    let check_argument lvaluet rvaluet err = match (lvaluet,rvaluet) with
+      (Array(t1,_),Array(t2,_)) -> if t1 = t2 then lvaluet else raise (Failure err)
+      | _ -> if lvaluet = rvaluet then rvaluet else raise (Failure err)
+
     in   
 
     (* Build local symbol table of variables for this function *)
@@ -194,7 +199,7 @@ let check program =
               let (et, e') = expr e in 
               let err = "illegal argument found " ^ string_of_typ et ^
                 " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e
-              in (check_assign ft et err, e')
+              in (check_argument ft et err, e')
             in 
             let args' = List.map2 check_call fd.formals args
             in (fd.typ, SCall(fname, args'))
