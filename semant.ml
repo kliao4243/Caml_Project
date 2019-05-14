@@ -168,7 +168,8 @@ let check program =
           | Less | Leq | Greater | Geq
                      when same && (t1 = Int || t1 = Float) -> Bool
           | And | Or when same && t1 = Bool -> Bool
-          | Con when same -> t1
+          | Con when same -> (match (t1,t2) with (Array(t1,sz1),Array(t2,sz2))-> Array(t1,sz1+sz2)
+                                                |_-> raise (Failure"illegal binary operator concat"))
           | _ -> raise (
             Failure ("illegal binary operator " ^
                        string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^

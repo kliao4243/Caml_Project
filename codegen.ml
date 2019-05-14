@@ -55,7 +55,7 @@ let translate program =
   in
   (* Create a map of global variables after creating each *)
   let global_vars : L.llvalue StringMap.t =
-    let global_var m (t, n, e) = 
+    let global_var m (t, n, _) = 
       let init = match t with
           A.Float -> L.const_float (ltype_of_primitive t) 0.0
         | _ -> L.const_int (ltype_of_primitive t) 0
@@ -63,7 +63,7 @@ let translate program =
     List.fold_left global_var StringMap.empty globals 
   in
   let global_var_types = 
-  let global_var_type m (t, n, e) = StringMap.add n t m 
+  let global_var_type m (t, n, _) = StringMap.add n t m 
   in List.fold_left global_var_type StringMap.empty globals
   in
   let printf_t : L.lltype = 
@@ -224,8 +224,23 @@ let translate program =
            SId s -> ignore(L.build_store e2' (lookup s) builder); e2'
           | _ -> raise (Failure ("Not implemented in codegen"))
       ) 
-      | SBinop ((A.Array(t1, sz1), e1), A.Con, e2)->
-        print_string (string_of_sexpr e2);raise (Failure ("fk"))
+      | SBinop ((A.Array(t1, sz1), e1), A.Con, (A.Array(t2, sz2), e2))->
+        let llarray_t = (ltype_of_primitive t1) in
+        let ptr = L.build_array_malloc llarray_t
+              (L.const_int i32_t (sz1+sz2)) "" builder in
+        for i = 0 to sz1+sz2-1 do
+            let arr_var = if i < sz1 then expr builder (A.Array(t1, sz1), e1)
+                                    else expr builder (A.Array(t2, sz2), e2) in
+
+            let idx = if i < sz1 then L.const_int i32_t i 
+                      else L.const_int i32_t (i-sz1) in 
+            let access = L.build_load (L.build_gep arr_var [| idx |] "" builder) "temp" builder in 
+            let eptr = L.build_gep ptr [|L.const_int i32_t i |] "" builder in
+            let cptr = L.build_pointercast eptr 
+                (L.pointer_type llarray_t) "" builder in
+            L.build_store access cptr builder
+        done; ptr
+
       | SBinop ((A.Float,_) as e1, op, e2) ->
         let e1' = expr builder e1
         and e2' = expr builder e2 in
