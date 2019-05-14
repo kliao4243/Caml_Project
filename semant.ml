@@ -79,7 +79,7 @@ let check program =
       | _ -> StringMap.add n sd map
   in
   (* Collect all struct names into one symbol table *)
-  let struct_decls = List.fold_left add_struct StringMap.empty program.structs
+  let struct_decls = List.fold_left add_struct StringMap.empty program_with_include.structs
   in
 
   let find_struct s = try StringMap.find s struct_decls
@@ -108,7 +108,7 @@ let check program =
 
     (* Build local symbol table of variables for this function *)
     let symbols = List.fold_left (fun m (ty, name, expr) -> StringMap.add name ty m)
-	                StringMap.empty (program.globals @ func.formals @ func.locals )
+	                StringMap.empty (program_with_include.globals @ func.formals @ func.locals )
     in
 
     (* Return a variable from our local symbol table *)
@@ -258,13 +258,12 @@ let check program =
     smembers = struc.members;
   }
   in
-
-  let rec add_all_include (all_program: A.Program) = 
-    let add_current_include (current_program: A.Program)(A.Include(incl) : A.include_decl) = 
+  let rec add_all_include (all_program: Ast.program) : Ast.program = 
+    let add_current_include (current_program: Ast.program)(Ast.Include(incl) : Ast.include_stmt) : Ast.program= 
       let file_in = open_in incl in
       let lexbuf = Lexing.from_channel file_in in
       let import_program = Parser.program Scanner.token lexbuf in
-      let (after_import_program: A.Program) = add_all_include import_program in
+      let (after_import_program: Ast.program) = add_all_include import_program in
       ignore(close_in file_in);
       {
         globals = current_program.globals;
@@ -273,8 +272,10 @@ let check program =
         includes = after_import_program.includes
       }
     in List.fold_left add_current_include all_program all_program.includes
-  
-  let program_with_include = add_all_include program in
+  in
+
+  let program_with_include = add_all_include program
+  in
   { 
     sglobals = program_with_include.globals;
     sfunctions = List.map check_function program_with_include.functions;

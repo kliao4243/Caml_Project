@@ -48,13 +48,13 @@ type struct_decl = {
     struct_name: string;
   }
 
-type include_decl = Include of string
+type include_stmt = Include of string
 
 type program = Program of {
     globals: bind_value list;
     functions: func_decl list;
     structs: struct_decl list;
-    includes: include_decl list;
+    includes: include_stmt list;
 }
 
 
@@ -146,8 +146,9 @@ let string_of_sdecl sdecl =
 let string_of_include = function
   Include(s) -> "#include<" ^ s ^ ">;\n"
 
-let string_of_program program =
-  String.concat "" (List.map string_of_include program.includes) ^
-  String.concat "\n" (List.map string_of_vdecl program.globals) ^ 
-  String.concat "\n" (List.map string_of_fdecl program.functions) ^
-  String.concat "\n" (List.map string_of_sdecl program.structs)
+let string_of_program program = match program with 
+  Program pro ->
+  String.concat "" (List.map string_of_include pro.includes) ^
+  String.concat "\n" (List.map string_of_vdecl pro.globals) ^ 
+  String.concat "\n" (List.map string_of_fdecl pro.functions) ^
+  String.concat "\n" (List.map string_of_sdecl pro.structs)

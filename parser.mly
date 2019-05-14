@@ -30,11 +30,11 @@ open Ast
 %%
 
 program:
-	decls EOF { $1 }
+	decls EOF { Program($1) }
 
 decls:
    /* nothing */ { {includes=[]; globals=[]; functions=[]; structs=[]} }
- | decls includes {{includes = $2 :: $1.includes}; globals = $1.globals; functions = $1.functions; structs = $1.structs}}
+ | decls includes {{includes = ($2 :: $1.includes); globals = $1.globals; functions = $1.functions; structs = $1.structs}}
  | decls vdecl { {includes = $1.includes; globals = ($2 :: $1.globals); functions = $1.functions; structs = $1.structs} }
  | decls fdecl { {includes = $1.includes; globals = $1.globals; functions = ($2 :: $1.functions); structs = $1.structs} }
  | decls sdecl { {includes = $1.includes; globals = $1.globals; functions = $1.functions; structs = ($2 :: $1.structs)} }
@@ -48,7 +48,7 @@ include_list:
     |   include_list include_decl { $1@[$2] }
 
 include_decl:
-  POUND INCLUDE STRINGLIT SEMI { Include($3) }
+  POUND INCLUDE SLIT SEMI { Include($3) }
  
 vdecl:
    typ ID SEMI { ($1, $2, Noexpr) }
