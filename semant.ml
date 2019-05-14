@@ -158,6 +158,8 @@ let check program =
       | Binop(e1, op, e2) as e -> 
         let (t1, e1') = expr e1 
         and (t2, e2') = expr e2 in 
+        print_string (string_of_typ t1);
+        print_string (string_of_typ t2);
         let tem_func tem_e = match tem_e with 
          Binop(_, Con, _)->
           let get_arr_info arr = match arr with (Array(t,l),SArrayLit(vals)) -> t,l,vals in
@@ -186,10 +188,11 @@ let check program =
          tem_func e
           (* Determine expression type based on operator and operand types *)
       | Call(fname, args) as call -> 
-          if fname="print" then 
-            let args' = List.map expr args in
-            (Int, SCall (fname, args'))
-          else
+          (match fname with 
+          | "size" | "print" -> 
+              let args' = List.map expr args in
+                      (Int, SCall (fname, args'))
+          | _ ->
             let fd = find_func fname in
             let param_length = List.length fd.formals in
             if List.length args != param_length then
@@ -202,7 +205,7 @@ let check program =
               in (check_argument ft et err, e')
             in 
             let args' = List.map2 check_call fd.formals args
-            in (fd.typ, SCall(fname, args'))
+            in (fd.typ, SCall(fname, args')))
       | StructAccess(s, m) as sacc ->
         let ss = expr s in
         let s_type = fst ss in

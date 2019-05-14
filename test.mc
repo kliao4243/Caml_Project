@@ -10,6 +10,8 @@ int main()
 	int i;
 	int j;
 	int[2] a = [1,2];
-	int[2] b = [3,4];
-	print(sum(a,b));
+	int[4] b = [1,2,0,4];
+	int[6] c = a @ b;
+	print(c[3]);
+	return 0;
 }

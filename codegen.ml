@@ -276,6 +276,9 @@ let translate program =
       | A.Float -> L.build_call printf_func [| float_format_str ; (expr builder (t,e)) |] "printf" builder
       | A.Pitch -> L.build_call prints_func [|(expr builder (t,e)) |] "prints" builder
       | _ -> raise (Failure (A.string_of_typ t)))
+    | SCall ("size",[t,e]) -> (match t with 
+      Array (a,b) -> L.const_int i32_t b
+      | _ -> raise (Failure("Array not found")))
     | SCall ("pitch_to_int", e) -> L.build_call pitch_to_int_func [|expr builder (List.hd e)|] "pitchtoint" builder
     | SCall (f, args) ->
        let (fdef, fdecl) = StringMap.find f function_decls in
