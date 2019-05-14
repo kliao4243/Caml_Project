@@ -1,6 +1,10 @@
+void print_arr(int[] a){
+	b;
 
+}
 int main()
 {	
 	int[2] a = [1,3];
-	a;
+	print(size(a));
+	print_arr(a);
 }

@@ -186,10 +186,11 @@ let check program =
          tem_func e
           (* Determine expression type based on operator and operand types *)
       | Call(fname, args) as call -> 
-          if fname="print" then 
-            let args' = List.map expr args in
-            (Int, SCall (fname, args'))
-          else
+          (match fname with 
+          | "size" | "print" -> 
+              let args' = List.map expr args in
+                      (Int, SCall (fname, args'))
+          | _ ->
             let fd = find_func fname in
             let param_length = List.length fd.formals in
             if List.length args != param_length then
@@ -201,8 +202,14 @@ let check program =
                 " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e
               in (check_argument ft et err, e')
             in 
-            let args' = List.map2 check_call fd.formals args
-            in (fd.typ, SCall(fname, args'))
+            let update_formals f a = 
+              let (et, e') = expr a in match et with
+                Array(t,l) -> (t,l,Noexpr)
+                | _ -> f
+            in
+            let args' = List.map2 check_call fd.formals args in
+            let new_formals = List.map2 check_call fd.formals args 
+          in (fd.typ, SCall(fname, args')))
       | StructAccess(s, m) as sacc ->
         let ss = expr s in
         let s_type = fst ss in
