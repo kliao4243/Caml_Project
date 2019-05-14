@@ -10,7 +10,7 @@ module StringMap = Map.Make(String)
 
    Check each global variable, then check each function *)
 
-let check program =
+let check program = 
 
   (* Verify a list of bindings has no void types or duplicate names *)
   let check_binds (kind : string) (binds : bind_value list) =
@@ -31,6 +31,25 @@ let check program =
   check_binds "global" program.globals;
 
   (**** Check functions ****)
+
+  let rec add_all_include (all_program: Ast.program) : Ast.program = 
+    let add_current_include (current_program: Ast.program)(Ast.Include(incl) : Ast.include_decl) : Ast.program= 
+      let file_in = open_in incl in
+      let lexbuf = Lexing.from_channel file_in in
+      let import_program = Parser.program Scanner.token lexbuf in
+      let (after_import_program: Ast.program) = add_all_include import_program in
+      ignore(close_in file_in);
+      {
+        globals = current_program.globals;
+        functions = after_import_program.functions@current_program.functions;
+        structs = after_import_program.structs@current_program.structs; 
+        includes = after_import_program.includes
+      }
+    in List.fold_left add_current_include all_program all_program.includes
+  in
+
+  let program_with_include = add_all_include program
+  in
 
   (* Collect function declarations for built-in functions: no bodies *)
   let built_in_decls = 
@@ -61,7 +80,7 @@ let check program =
   in
 
   (* Collect all function names into one symbol table *)
-  let function_decls = List.fold_left add_func built_in_decls functions
+  let function_decls = List.fold_left add_func built_in_decls program_with_include.functions
   in
   
   (* Return a function from our symbol table *)
@@ -258,24 +277,7 @@ let check program =
     smembers = struc.members;
   }
   in
-  let rec add_all_include (all_program: Ast.program) : Ast.program = 
-    let add_current_include (current_program: Ast.program)(Ast.Include(incl) : Ast.include_stmt) : Ast.program= 
-      let file_in = open_in incl in
-      let lexbuf = Lexing.from_channel file_in in
-      let import_program = Parser.program Scanner.token lexbuf in
-      let (after_import_program: Ast.program) = add_all_include import_program in
-      ignore(close_in file_in);
-      {
-        globals = current_program.globals;
-        functions = after_import_program.functions@current_program.functions;
-        structs = after_import_program.structs@current_program.structs; 
-        includes = after_import_program.includes
-      }
-    in List.fold_left add_current_include all_program all_program.includes
-  in
 
-  let program_with_include = add_all_include program
-  in
   { 
     sglobals = program_with_include.globals;
     sfunctions = List.map check_function program_with_include.functions;
