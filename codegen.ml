@@ -106,8 +106,8 @@ let translate program =
       and formal_types = 
        Array.of_list (List.map (fun (t,_,_) -> ltype_of_typ t) fdecl.sformals)
       in let ftype = L.function_type (ltype_of_typ fdecl.styp) formal_types in
-        StringMap.add name (L.define_function name ftype the_module, fdecl) m in
-        List.fold_left function_decl StringMap.empty functions in
+    StringMap.add name (L.define_function name ftype the_module, fdecl) m in
+  List.fold_left function_decl StringMap.empty functions in
   
   (* Fill in the body of the given function *)
   let build_function_body fdecl =
@@ -130,24 +130,16 @@ let translate program =
        * resulting registers to our map *)
       and add_local m (t, n, e) =
 
-      let local_var = L.build_alloca (ltype_of_typ t) n builder
-      in StringMap.add n local_var m 
-          in
-          let formals = List.fold_left2 add_formal StringMap.empty fdecl.sformals
-              (Array.to_list (L.params the_function)) in
-          List.fold_left add_local formals fdecl.slocals 
+      let local_var = L.build_alloca (ltype_of_typ t) n builder in 
+      StringMap.add n local_var m in
+      let formals = List.fold_left2 add_formal StringMap.empty fdecl.sformals
+      (Array.to_list (L.params the_function)) in
+    List.fold_left add_local formals fdecl.slocals 
     in
-    let local_var_types =
-      let add_item m (t, n, _) =
-        StringMap.add n t m
-      in let formals = List.fold_left add_item StringMap.empty fdecl.sformals in
-      List.fold_left add_item formals fdecl.slocals
-    in let lookup_type n = try StringMap.find n local_var_types
-                       with Not_found -> StringMap.find n global_var_types
     (* Return the value for a variable or formal argument.
        Check local names first, then global names *)
-    in let lookup n = try StringMap.find n local_vars
-                   with Not_found -> StringMap.find n global_vars
+    let lookup n = try StringMap.find n local_vars
+                 with Not_found -> StringMap.find n global_vars
     in
     (* Construct code for an expression; return its value *)
     let rec expr builder ((_, e) : sexpr) = match e with
