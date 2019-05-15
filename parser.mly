@@ -26,9 +26,10 @@ open Ast
 %left LT GT LEQ GEQ
 %left PLUS MINUS 
 %left TIMES DIVIDE MOD
-%left CONCAT LSQUARE RSQUARE 
+%left CONCAT 
 %right NOT
 %left DOT
+%left LSQUARE RSQUARE 
 %%
 
 program:
@@ -90,7 +91,7 @@ typ:
   | PITCH { Pitch }
   | STLIT { Struct($1) }
   | typ LSQUARE LITERAL RSQUARE { Array($1,$3) }
-  | typ LSQUARE RSQUARE { Array($1,-1) }
+  | typ LSQUARE RSQUARE { Array($1,10) }
 
 stmt_list:
 		/* nothing */  { [] }

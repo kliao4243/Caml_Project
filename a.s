@@ -61,11 +61,12 @@ _generate_music:                        ## @generate_music
 	movl	%edx, 24(%rsp)
 	movq	%rsi, 16(%rsp)
 	movq	%rdi, 8(%rsp)
-	leaq	L_123(%rip), %rdi
-	xorl	%eax, %eax
-	callq	_puts
-	movl	28(%rsp), %esi
 	leaq	L_fmt.6(%rip), %rbx
+	movq	%rbx, %rdi
+	movl	$1, %esi
+	xorl	%eax, %eax
+	callq	_printf
+	movl	28(%rsp), %esi
 	movq	%rbx, %rdi
 	xorl	%eax, %eax
 	callq	_printf
@@ -110,210 +111,17 @@ LBB1_1:                                 ## %while
 _build_track:                           ## @build_track
 	.cfi_startproc
 ## %bb.0:                               ## %entry
-	pushq	%rbx
-	.cfi_def_cfa_offset 16
-	subq	$96, %rsp
-	.cfi_def_cfa_offset 112
-	.cfi_offset %rbx, -16
-	movq	%rdi, %rbx
-	movl	%esi, 36(%rsp)
-	movl	%edx, 32(%rsp)
-	movq	%rcx, 64(%rsp)
-	movq	%r8, 56(%rsp)
-	movl	$80, %edi
-	callq	_malloc
-	leaq	"L_4#.10"(%rip), %rcx
-	movq	%rcx, (%rax)
-	leaq	"L_4#.11"(%rip), %rcx
-	movq	%rcx, 8(%rax)
-	leaq	"L_4#.12"(%rip), %rcx
-	movq	%rcx, 16(%rax)
-	leaq	"L_4#.13"(%rip), %rcx
-	movq	%rcx, 24(%rax)
-	leaq	"L_4#.14"(%rip), %rcx
-	movq	%rcx, 32(%rax)
-	leaq	"L_4#.15"(%rip), %rcx
-	movq	%rcx, 40(%rax)
-	leaq	"L_4#.16"(%rip), %rcx
-	movq	%rcx, 48(%rax)
-	leaq	"L_4#.17"(%rip), %rcx
-	movq	%rcx, 56(%rax)
-	leaq	"L_4#.18"(%rip), %rcx
-	movq	%rcx, 64(%rax)
-	leaq	"L_4#.19"(%rip), %rcx
-	movq	%rcx, 72(%rax)
-	movq	%rax, 16(%rsp)
-	movl	$160, %edi
-	callq	_malloc
-	movq	16(%rsp), %rcx
-	movq	(%rcx), %rcx
-	movq	%rcx, (%rax)
-	movq	16(%rsp), %rcx
-	movq	8(%rcx), %rcx
-	movq	%rcx, 8(%rax)
-	movq	16(%rsp), %rcx
-	movq	16(%rcx), %rcx
-	movq	%rcx, 16(%rax)
-	movq	16(%rsp), %rcx
-	movq	24(%rcx), %rcx
-	movq	%rcx, 24(%rax)
-	movq	16(%rsp), %rcx
-	movq	32(%rcx), %rcx
-	movq	%rcx, 32(%rax)
-	movq	16(%rsp), %rcx
-	movq	40(%rcx), %rcx
-	movq	%rcx, 40(%rax)
-	movq	16(%rsp), %rcx
-	movq	48(%rcx), %rcx
-	movq	%rcx, 48(%rax)
-	movq	16(%rsp), %rcx
-	movq	56(%rcx), %rcx
-	movq	%rcx, 56(%rax)
-	movq	16(%rsp), %rcx
-	movq	64(%rcx), %rcx
-	movq	%rcx, 64(%rax)
-	movq	16(%rsp), %rcx
-	movq	72(%rcx), %rcx
-	movq	%rcx, 72(%rax)
-	movq	16(%rsp), %rcx
-	movq	(%rcx), %rcx
-	movq	%rcx, 80(%rax)
-	movq	16(%rsp), %rcx
-	movq	8(%rcx), %rcx
-	movq	%rcx, 88(%rax)
-	movq	16(%rsp), %rcx
-	movq	16(%rcx), %rcx
-	movq	%rcx, 96(%rax)
-	movq	16(%rsp), %rcx
-	movq	24(%rcx), %rcx
-	movq	%rcx, 104(%rax)
-	movq	16(%rsp), %rcx
-	movq	32(%rcx), %rcx
-	movq	%rcx, 112(%rax)
-	movq	16(%rsp), %rcx
-	movq	40(%rcx), %rcx
-	movq	%rcx, 120(%rax)
-	movq	16(%rsp), %rcx
-	movq	48(%rcx), %rcx
-	movq	%rcx, 128(%rax)
-	movq	16(%rsp), %rcx
-	movq	56(%rcx), %rcx
-	movq	%rcx, 136(%rax)
-	movq	16(%rsp), %rcx
-	movq	64(%rcx), %rcx
-	movq	%rcx, 144(%rax)
-	movq	16(%rsp), %rcx
-	movq	72(%rcx), %rcx
-	movq	%rcx, 152(%rax)
-	movq	%rax, 48(%rsp)
-	movl	$40, %edi
-	callq	_malloc
-	movq	$0, (%rax)
-	movq	$0, 8(%rax)
-	movq	$0, 16(%rax)
-	movq	$0, 24(%rax)
-	movq	$0, 32(%rax)
-	movq	%rax, 8(%rsp)
-	movl	$80, %edi
-	callq	_malloc
-	movq	8(%rsp), %rcx
-	movl	(%rcx), %ecx
-	movl	%ecx, (%rax)
-	movq	8(%rsp), %rcx
-	movl	4(%rcx), %ecx
-	movl	%ecx, 4(%rax)
-	movq	8(%rsp), %rcx
-	movl	8(%rcx), %ecx
-	movl	%ecx, 8(%rax)
-	movq	8(%rsp), %rcx
-	movl	12(%rcx), %ecx
-	movl	%ecx, 12(%rax)
-	movq	8(%rsp), %rcx
-	movl	16(%rcx), %ecx
-	movl	%ecx, 16(%rax)
-	movq	8(%rsp), %rcx
-	movl	20(%rcx), %ecx
-	movl	%ecx, 20(%rax)
-	movq	8(%rsp), %rcx
-	movl	24(%rcx), %ecx
-	movl	%ecx, 24(%rax)
-	movq	8(%rsp), %rcx
-	movl	28(%rcx), %ecx
-	movl	%ecx, 28(%rax)
-	movq	8(%rsp), %rcx
-	movl	32(%rcx), %ecx
-	movl	%ecx, 32(%rax)
-	movq	8(%rsp), %rcx
-	movl	36(%rcx), %ecx
-	movl	%ecx, 36(%rax)
-	movq	8(%rsp), %rcx
-	movl	(%rcx), %ecx
-	movl	%ecx, 40(%rax)
-	movq	8(%rsp), %rcx
-	movl	4(%rcx), %ecx
-	movl	%ecx, 44(%rax)
-	movq	8(%rsp), %rcx
-	movl	8(%rcx), %ecx
-	movl	%ecx, 48(%rax)
-	movq	8(%rsp), %rcx
-	movl	12(%rcx), %ecx
-	movl	%ecx, 52(%rax)
-	movq	8(%rsp), %rcx
-	movl	16(%rcx), %ecx
-	movl	%ecx, 56(%rax)
-	movq	8(%rsp), %rcx
-	movl	20(%rcx), %ecx
-	movl	%ecx, 60(%rax)
-	movq	8(%rsp), %rcx
-	movl	24(%rcx), %ecx
-	movl	%ecx, 64(%rax)
-	movq	8(%rsp), %rcx
-	movl	28(%rcx), %ecx
-	movl	%ecx, 68(%rax)
-	movq	8(%rsp), %rcx
-	movl	32(%rcx), %ecx
-	movl	%ecx, 72(%rax)
-	movq	8(%rsp), %rcx
-	movl	36(%rcx), %ecx
-	movl	%ecx, 76(%rax)
-	movq	%rax, 40(%rsp)
-	movl	36(%rsp), %eax
-	movl	%eax, 92(%rsp)
-	movl	32(%rsp), %eax
-	movl	%eax, 88(%rsp)
-	movl	$0, 28(%rsp)
-	jmp	LBB2_1
-	.p2align	4, 0x90
-LBB2_2:                                 ## %while_body
-                                        ##   in Loop: Header=BB2_1 Depth=1
-	movq	64(%rsp), %rax
-	movslq	28(%rsp), %rcx
-	movq	(%rax,%rcx,8), %rax
-	movq	48(%rsp), %rdx
-	movq	%rax, (%rdx,%rcx,8)
-	movq	56(%rsp), %rax
-	movslq	28(%rsp), %rcx
-	movl	(%rax,%rcx,4), %eax
-	movq	40(%rsp), %rdx
-	movl	%eax, (%rdx,%rcx,4)
-	incl	28(%rsp)
-LBB2_1:                                 ## %while
-                                        ## =>This Inner Loop Header: Depth=1
-	movl	28(%rsp), %eax
-	cmpl	32(%rsp), %eax
-	jl	LBB2_2
-## %bb.3:                               ## %merge
-	movq	48(%rsp), %rax
-	movq	%rax, 80(%rsp)
-	movq	40(%rsp), %rcx
-	movq	%rcx, 72(%rsp)
-	movq	88(%rsp), %rdx
-	movq	%rdx, 16(%rbx)
-	movq	%rax, 8(%rbx)
-	movq	%rcx, (%rbx)
-	movq	%rbx, %rax
-	addq	$96, %rsp
-	popq	%rbx
+	movq	%rdi, %rax
+	movl	%esi, -52(%rsp)
+	movl	%edx, -56(%rsp)
+	movq	%rcx, -16(%rsp)
+	movq	%r8, -24(%rsp)
+	movq	%rcx, -40(%rsp)
+	movq	%r8, -48(%rsp)
+	movq	-32(%rsp), %rdx
+	movq	%rdx, 16(%rdi)
+	movq	%rcx, 8(%rdi)
+	movq	%r8, (%rdi)
 	retq
 	.cfi_endproc
                                         ## -- End function
@@ -345,44 +153,11 @@ L_fmt.6:                                ## @fmt.6
 L_fmt.7:                                ## @fmt.7
 	.asciz	"%g\n"
 
-L_123:                                  ## @"123"
-	.asciz	"track start"
-
 L_fmt.8:                                ## @fmt.8
 	.asciz	"%d\n"
 
 L_fmt.9:                                ## @fmt.9
 	.asciz	"%g\n"
-
-"L_4#.10":                              ## @"4#.10"
-	.asciz	"1b1"
-
-"L_4#.11":                              ## @"4#.11"
-	.asciz	"1b1"
-
-"L_4#.12":                              ## @"4#.12"
-	.asciz	"1b1"
-
-"L_4#.13":                              ## @"4#.13"
-	.asciz	"1b1"
-
-"L_4#.14":                              ## @"4#.14"
-	.asciz	"1b1"
-
-"L_4#.15":                              ## @"4#.15"
-	.asciz	"1b1"
-
-"L_4#.16":                              ## @"4#.16"
-	.asciz	"1b1"
-
-"L_4#.17":                              ## @"4#.17"
-	.asciz	"1b1"
-
-"L_4#.18":                              ## @"4#.18"
-	.asciz	"1b1"
-
-"L_4#.19":                              ## @"4#.19"
-	.asciz	"1b1"
 
 
 .subsections_via_symbols

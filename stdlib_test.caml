@@ -1,0 +1,52 @@
+struct _track{
+	int instrument;
+	int size;
+	Pitch[20] melody;
+	int[20] rhythm;
+};
+_track build_track(int instrument, int size, Pitch[] melody, int[] rhythm){
+	_track res;
+	int i;
+	Pitch[20] new_melody = [1b1,1b1,1b1,1b1,1b1,1b1,1b1,1b1,1b1,1b1,1b1,1b1,1b1,1b1,1b1,1b1,1b1,1b1,1b1,1b1];
+	int[20] new_rhythm = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+	res.instrument = instrument;
+	res.size = size;
+	for(i = 0; i < size; i = i + 1){
+		new_melody[i] = melody[i];
+		new_rhythm[i] = rhythm[i];
+	} 
+	res.melody = new_melody;
+	res.rhythm = new_rhythm;
+	return res;
+}
+
+int generate_music(_track t){
+	int i;
+	print("track_start"); /*size of tracks*/
+	print(t.instrument);
+	print(t.size);
+	for(i = 0; i < t.size; i = i + 1){
+		print(pitch_to_int(t.melody[i]));
+		print(t.rhythm[i]);
+	}
+	return 0;
+}
+
+
+int main()
+{	
+	int i;
+	Pitch[5] melody_a = [1^4,2^4,3^4,4^4,5^4];
+	int[5] rhythm_a = [1,1,1,1,2];
+	Pitch[5] melody_b = [1^5,2^5,3^5,4^5,5^5];
+	_track track_1 = build_track(1, 5, melody_a,rhythm_a);
+	_track track_2 = build_track(1, 5, melody_b,rhythm_a);
+	generate_music(track_1);
+	print("adsfsdaf");
+	generate_music(track_1);
+	return 0;
+	/*
+	print(track_1.melody[1]);
+	print(track_1.rhythm[0]);
+	*/
+}
