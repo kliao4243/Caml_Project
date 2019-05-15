@@ -231,7 +231,6 @@ let translate program =
                 (L.pointer_type llarray_t) "" builder in
             L.build_store access cptr builder
         done; ptr
-
       | SBinop ((A.Float,_) as e1, op, e2) ->
         let e1' = expr builder e1
         and e2' = expr builder e2 in
