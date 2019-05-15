@@ -37,10 +37,10 @@ let translate program =
   and i8_t       = L.i8_type     context
   and i1_t       = L.i1_type     context
   and float_t    = L.double_type context
-  and pitch_t    = L.pointer_type (L.i8_type context)
   and void_t     = L.void_type   context in
   let struct_t n = L.named_struct_type context n in
   let str_t      = L.pointer_type i8_t
+  and pitch_t    = L.pointer_type i8_t
   in
   (* Return the LLVM type for a MicroC type *)
   let rec ltype_of_primitive = function
@@ -70,14 +70,13 @@ let translate program =
       L.var_arg_function_type i32_t [| str_t |] in
   let printf_func : L.llvalue = 
       L.declare_function "printf" printf_t the_module in
-
   let prints_t : L.lltype = 
       L.var_arg_function_type str_t [| str_t |] in
   let prints_func : L.llvalue = 
       L.declare_function "puts" prints_t the_module in
 
-  let pitch_to_int: L.lltype = 
-      L.var_arg_function_type pitch_t [|pitch_t|] in
+  let pitch_to_int : L.lltype = 
+      L.var_arg_function_type i32_t [|pitch_t|] in
   let pitch_to_int_func : L.llvalue = 
       L.declare_function "pitch_to_int" pitch_to_int the_module in
 
@@ -288,6 +287,7 @@ let translate program =
       Array (a,b) -> L.const_int i32_t b
       | _ -> raise (Failure("Array not found")))
     | SCall ("pitch_to_int", e) -> L.build_call pitch_to_int_func [|expr builder (List.hd e)|] "pitchtoint" builder
+    | SCall ("print_arr", [t,e]) -> L.build_call printarr_func [| expr builder (t,e)|] "arr" builder
     | SCall (f, args) ->
        let (fdef, fdecl) = StringMap.find f function_decls in
        let llargs = List.rev (List.map (expr builder) (List.rev args)) in

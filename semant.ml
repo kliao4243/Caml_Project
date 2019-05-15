@@ -53,20 +53,24 @@ let check program =
 
   (* Collect function declarations for built-in functions: no bodies *)
   let built_in_decls = 
-    let add_bind map (name, ty) = StringMap.add name {
-      typ = Void;
-      fname = name; 
-      formals = [(ty, "x", Literal(0))];
-      locals = []; body = [] } map
-    in List.fold_left add_bind StringMap.empty [ ("print", Int);
-			                         ("printb", Bool);
-			                         ("printf", Float);
-			                         ("printbig", Int);
-                               ("prints", String);
-                               ("printp", Pitch); 
-                               ("pitch_to_int", Pitch);]
+    let add_bind map (ftype, name, param_list) = StringMap.add name {
+      typ = ftype;
+      fname = name;
+      formals = param_list;
+      locals = [];
+      body = []
+    } map in 
+    let builtin_funcs = 
+    [(Void, "print", [(Int,"x",Noexpr)]);
+      (Void, "printb", [(Bool,"x",Noexpr)]);
+      (Void, "printbig", [(Int,"x",Noexpr)]);
+      (Void, "prints", [(String,"x",Noexpr)]);
+      (Void, "printp", [(Pitch,"x",Noexpr)]);
+      (Int, "pitch_to_int", [(Pitch,"x",Noexpr)]);
+      (Void, "generate_music",[Array])]
+    in 
+    List.fold_left add_bind StringMap.empty builtin_funcs
   in
-
   (* Add function name to symbol table *)
   let add_func map fd = 
     let built_in_err = "function " ^ fd.fname ^ " may not be defined"
@@ -116,7 +120,7 @@ let check program =
       (_,_,Noexpr) -> stmts
      |(_,n,e) -> Expr(Assign((Id(n)),e))::stmts
     in
-    let new_body = List.fold_left add_assign func.body func.locals
+    let new_body = List.fold_left add_assign func.body (List.rev func.locals)
     in
 
     (* Raise an exception if the given rvalue type cannot be assigned to
@@ -125,7 +129,7 @@ let check program =
         if lvaluet = rvaluet then lvaluet else raise (Failure err)
     in
     let check_argument lvaluet rvaluet err = match (lvaluet,rvaluet) with
-      (Array(t1,_),Array(t2,_)) -> if t1 = t2 then lvaluet else raise (Failure err)
+      (Array(t1,_),Array(t2,_)) -> if t1 = t2 then rvaluet else raise (Failure err)
       | _ -> if lvaluet = rvaluet then rvaluet else raise (Failure err)
     in   
     let check_equal lvaluet rvaluet = match (lvaluet,rvaluet) with
@@ -159,7 +163,7 @@ let check program =
           and (rt, e2) = expr right_e in
           let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
             string_of_typ rt ^ " in " ^ string_of_expr ex
-          in (check_assign lt rt err, SAssign((lt, e1), (rt, e2)))
+          in (check_argument lt rt err, SAssign((lt, e1), (rt, e2)))
       
       | Unop(op, e) as ex -> 
           let (t, e') = expr e in
@@ -242,7 +246,7 @@ let check program =
           | _ -> 0 
         in
         let t3 = match t1 with 
-            Array(t,size) -> if (get_int idx) < size then t else raise (Failure ("index out of bound"))
+            Array(t,size) -> t 
           | _ -> raise (Failure ("not an array"))
         in
         if t2 = Int then (t3, SArrayAccess((t1, se1), (t2, se2)))

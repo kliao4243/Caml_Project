@@ -1,7 +1,8 @@
-#include "test_import1.mc";
+#include "stdlib.mc";
+
 int main(){
-_chord test_chord;
-test_chord.c = 10;
-print(test_chord.c);
+_chord C;
+C.c = 12;
+print(C.c);
 return 0;
 }
