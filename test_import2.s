@@ -20,17 +20,12 @@ _main:                                  ## @main
 ## %bb.0:                               ## %entry
 	subq	$24, %rsp
 	.cfi_def_cfa_offset 32
-	movl	$1, 16(%rsp)
-	movl	$1, 20(%rsp)
-	movl	$1, %edi
-	movl	$1, %esi
-	callq	_add
-	movl	%eax, 12(%rsp)
+	movl	$10, 16(%rsp)
 	leaq	L_fmt.2(%rip), %rdi
-	movl	%eax, %esi
+	movl	$10, %esi
 	xorl	%eax, %eax
 	callq	_printf
-	movl	12(%rsp), %eax
+	xorl	%eax, %eax
 	addq	$24, %rsp
 	retq
 	.cfi_endproc
