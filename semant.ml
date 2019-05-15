@@ -66,8 +66,7 @@ let check program =
       (Void, "printbig", [(Int,"x",Noexpr)]);
       (Void, "prints", [(String,"x",Noexpr)]);
       (Void, "printp", [(Pitch,"x",Noexpr)]);
-      (Int, "pitch_to_int", [(Pitch,"x",Noexpr)]);
-      (Void, "generate_music",[Array])]
+      (Int, "pitch_to_int", [(Pitch,"x",Noexpr)])]
     in 
     List.fold_left add_bind StringMap.empty builtin_funcs
   in
@@ -125,11 +124,8 @@ let check program =
 
     (* Raise an exception if the given rvalue type cannot be assigned to
        the given lvalue type *)
-    let check_assign lvaluet rvaluet err =
-        if lvaluet = rvaluet then lvaluet else raise (Failure err)
-    in
     let check_argument lvaluet rvaluet err = match (lvaluet,rvaluet) with
-      (Array(t1,_),Array(t2,_)) -> if t1 = t2 then rvaluet else raise (Failure err)
+      (Array(t1 ,_), Array(t2, _)) -> if t1 = t2 then rvaluet else raise (Failure err)
       | _ -> if lvaluet = rvaluet then rvaluet else raise (Failure err)
     in   
     let check_equal lvaluet rvaluet = match (lvaluet,rvaluet) with
@@ -137,7 +133,7 @@ let check program =
       | _ -> lvaluet = rvaluet
     in
     (* Build local symbol table of variables for this function *)
-    let symbols = List.fold_left (fun m (ty, name, expr) -> StringMap.add name ty m)
+    let symbols = List.fold_left (fun m (ty, name, _) -> StringMap.add name ty m)
 	                StringMap.empty (program_with_include.globals @ func.formals @ func.locals )
     in
 
@@ -188,8 +184,8 @@ let check program =
           | Less | Leq | Greater | Geq
                      when same && (t1 = Int || t1 = Float) -> Bool
           | And | Or when same && t1 = Bool -> Bool
-          | Con when same -> (match (t1,t2) with (Array(t1,sz1),Array(t2,sz2))-> Array(t1,sz1+sz2)
-                                                |_-> raise (Failure"illegal binary operator concat"))
+          | Con when same -> (match (t1,t2) with (Array(typ, sz1), Array(_, sz2))-> Array(typ,sz1+sz2)
+                                                | _-> raise (Failure"illegal binary operator concat"))
           | _ -> raise (
             Failure ("illegal binary operator " ^
                        string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
@@ -213,13 +209,7 @@ let check program =
                 " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e
               in (check_argument ft et err, e')
             in 
-            let update_formals f a = 
-              let (et, e') = expr a in match et with
-                Array(t,l) -> (t,l,Noexpr)
-                | _ -> f
-            in
-            let args' = List.map2 check_call fd.formals args in
-            let new_formals = List.map2 check_call fd.formals args 
+            let args' = List.map2 check_call fd.formals args
           in (fd.typ, SCall(fname, args')))
       | StructAccess(s, m) as sacc ->
         let ss = expr s in
@@ -241,12 +231,9 @@ let check program =
       | ArrayAccess (var, idx) ->   
         let (t1, se1) = expr var in
         let (t2, se2) = expr idx in
-        let get_int e = match e with 
-          Literal l -> l 
-          | _ -> 0 
-        in
+        
         let t3 = match t1 with 
-            Array(t,size) -> t 
+            Array(t, _) -> t 
           | _ -> raise (Failure ("not an array"))
         in
         if t2 = Int then (t3, SArrayAccess((t1, se1), (t2, se2)))

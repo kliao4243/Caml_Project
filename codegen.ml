@@ -231,7 +231,6 @@ let translate program =
                 (L.pointer_type llarray_t) "" builder in
             L.build_store access cptr builder
         done; ptr
-
       | SBinop ((A.Float,_) as e1, op, e2) ->
         let e1' = expr builder e1
         and e2' = expr builder e2 in
@@ -287,7 +286,6 @@ let translate program =
       Array (a,b) -> L.const_int i32_t b
       | _ -> raise (Failure("Array not found")))
     | SCall ("pitch_to_int", e) -> L.build_call pitch_to_int_func [|expr builder (List.hd e)|] "pitchtoint" builder
-    | SCall ("print_arr", [t,e]) -> L.build_call printarr_func [| expr builder (t,e)|] "arr" builder
     | SCall (f, args) ->
        let (fdef, fdecl) = StringMap.find f function_decls in
        let llargs = List.rev (List.map (expr builder) (List.rev args)) in
