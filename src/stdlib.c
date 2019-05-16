@@ -11,6 +11,8 @@ int print_arr(int a){
 	return 0;
 }
 int pitch_to_int(char* s){
+    if(s == "1b1")
+        return 0;
     char a = s[0];
     char b = s[1];
     char c = s[2];

@@ -12,8 +12,8 @@ int main(){
 	int[5] third_bar_rhythm = [8, 16, 16, 16, 16];
 	int[1] end_rhythm = [8];
 
-	Pitch[19] melody = start_melody@first_bar_melody@second_bar_melody@third_bar_melody@end_melody;
-	int[19] rhythm = start_rhythm@first_bar_rhythm@second_bar_rhythm@third_bar_rhythm@end_rhythm;
+	Pitch[] melody = start_melody@first_bar_melody@second_bar_melody@third_bar_melody@end_melody;
+	int[] rhythm = start_rhythm@first_bar_rhythm@second_bar_rhythm@third_bar_rhythm@end_rhythm;
 
 	_track fur_elise = build_track(1, 19, melody, rhythm);
 	generate_music(fur_elise);

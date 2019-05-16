@@ -1,49 +1,47 @@
 #include "MidiFile.h"
-#include <cstring>
-#include <cstdlib>
+#include "Options.h"
+#include <random>
 #include <iostream>
-#include <fstream>
-#include <queue>
-#include <vector>
-#include <string>
+
 using namespace std;
 using namespace smf;
 typedef unsigned char uchar;
 int main(int argc, char** argv) {
-    
-    if(argc != 2){
-        printf("invalid command line argument\n sample usage ./betmidi song1.s");
-        return 0;
-    }
-    string song_name = argv[1];
-    string line;
-    ifstream myfile;
-    MidiFile outputfile;
-    //outputfile.absoluteTicks();
-    vector<uchar> midievent;
-    midievent.resize(3);
-    midievent[2] = 64;
-    int tpq = 60;
-    myfile.open(argv[1]);
-    if (myfile.is_open()){
-        int i = 1;
-
+   Options options;
+   options.define("o|output-file=s",   "Output filename (stdout if none)");
+   options.process(argc, argv);
+   ifstream myfile;
+   string line;
+   vector<uchar> midievent;
+   string song_name = options.getString("output-file");
+   MidiFile outputfile;
+   myfile.open(song_name);
+   midievent.resize(3);
+   midievent[2] = 64;
+   if (myfile.is_open()){
+        int track = 0;
+        float tpq = 120;
+        int channel = 0;
         while(getline(myfile,line)){
             if (line != "track_start")
                 break;
-            int actiontime = 0;
+            float actiontime = 0;
             getline(myfile,line);
+             cout << line << endl;
             int instrument = stoi(line);
             getline(myfile,line);
-            outputfile.addTrack();
+             cout << line << endl;
+            outputfile.addTrack(1);
+            outputfile.addTimbre(track, 0, channel, instrument);
             int length = stoi(line);
-            for(int j = 0; j < length; j++){
+            for (int i=0; i<length; i++) {
                 getline(myfile,line);
                 int pitch = stoi(line);
+                cout << line << endl;
                 getline(myfile,line);
-                
                 int tem_rhythm = stoi(line);
-                float rhythm;
+                 cout << line << endl;
+                float rhythm = 1;
                 switch(tem_rhythm){
                     case 16:
                         rhythm = 0.25;
@@ -60,27 +58,32 @@ int main(int argc, char** argv) {
                     case 1:
                         rhythm = 4;
                         break;
+                    default:
+                        rhythm = 1;
                 }
-                midievent[0] = 0x90;     // store a note on command (MIDI channel 1)
                 midievent[1] = pitch;
-                outputfile.addEvent(i, actiontime, midievent);
-                actiontime += tpq * rhythm;
-                midievent[0] = 0x80;     // store a note off command (MIDI channel 1)
-                outputfile.addEvent(i, actiontime, midievent);
+                if (pitch == 0){
+                    actiontime += rhythm * tpq;
+                }
+                else{
+                    midievent[0] = 0x90;
+                    midievent[1] = pitch;
+                    outputfile.addEvent(track, actiontime, midievent);
+                    actiontime += tpq * rhythm;
+                    cout << actiontime << endl;
+                    midievent[0] = 0x80;
+                    outputfile.addEvent(track, actiontime, midievent);
+                }
             }
-            i++;
+            track++;
         }
-        myfile.close();
-        outputfile.sortTracks();         // make sure data is in correct order
-        outputfile.setTPQ(tpq);
-        cout << outputfile.getTPQ() << endl;
-        outputfile.write(song_name+".mid"); // write Standard MIDI File twinkle.mid
-    }else{
-        cout << "file is not opened!" << endl;
-    }
-    return 0;
+   }
+   outputfile.sortTracks();  // Need to sort tracks since added events are
+   if (song_name.empty()) {
+      if (options.getBoolean("hex")) outputfile.writeHex(cout);
+      else cout << outputfile;
+   } else
+      outputfile.write(song_name+".mid");
+
+   return 0;
 }
-
-
-
-

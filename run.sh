@@ -12,3 +12,6 @@ llc -relocation-model=pic "$n.ll"
 cc -o $n.exe "$n.s" "src/stdlib.o" "-lm"
 ./$n.exe > $n
 ./midi_generator -o ./$n
+rm $n.ll
+rm $n.s
+rm $n.exe
