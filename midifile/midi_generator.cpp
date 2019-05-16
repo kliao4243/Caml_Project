@@ -6,6 +6,32 @@
 using namespace std;
 using namespace smf;
 typedef unsigned char uchar;
+string int_2_instr(int x){
+    switch(x){
+        case 1:
+            return "acoustic piano";
+        case 2:
+            return "electric piano";
+        case 25:
+            return "acoustic guitar";
+        case 26:
+            return "electric jazz guitar";
+        case 29:
+            return "overloaded guitar";
+        case 30:
+            return "distortion guitar";
+        case 33:
+            return "electric bass";
+        case 40:
+            return "violin";
+        case 56:
+            return "trumpet";
+        case 73:
+            return "flute";
+        default:
+            return "unknown";
+    }
+}
 int main(int argc, char** argv) {
    Options options;
    options.define("o|output-file=s",   "Output filename (stdout if none)");
@@ -18,8 +44,9 @@ int main(int argc, char** argv) {
    myfile.open(song_name);
    midievent.resize(3);
    midievent[2] = 64;
+   int track = 0;
+   cout << endl << "**********song infomation:**********" << endl;
    if (myfile.is_open()){
-        int track = 0;
         float tpq = 120;
         int channel = 0;
         while(getline(myfile,line)){
@@ -27,20 +54,21 @@ int main(int argc, char** argv) {
                 break;
             float actiontime = 0;
             getline(myfile,line);
-             cout << line << endl;
             int instrument = stoi(line);
             getline(myfile,line);
-             cout << line << endl;
             outputfile.addTrack(1);
             outputfile.addTimbre(track, 0, channel, instrument);
             int length = stoi(line);
+            
+            cout << "track" << track << endl;
+            cout << "instrument: " << int_2_instr(instrument) << endl;
+            cout << "number of notes: " << length << endl << endl;
+            
             for (int i=0; i<length; i++) {
                 getline(myfile,line);
                 int pitch = stoi(line);
-                cout << line << endl;
                 getline(myfile,line);
                 int tem_rhythm = stoi(line);
-                 cout << line << endl;
                 float rhythm = 1;
                 switch(tem_rhythm){
                     case 16:
@@ -70,7 +98,6 @@ int main(int argc, char** argv) {
                     midievent[1] = pitch;
                     outputfile.addEvent(track, actiontime, midievent);
                     actiontime += tpq * rhythm;
-                    cout << actiontime << endl;
                     midievent[0] = 0x80;
                     outputfile.addEvent(track, actiontime, midievent);
                 }
@@ -83,6 +110,8 @@ int main(int argc, char** argv) {
       if (options.getBoolean("hex")) outputfile.writeHex(cout);
       else cout << outputfile;
    } else
+      cout << song_name+".mid has been generated!" << endl;
+    
       outputfile.write(song_name+".mid");
 
    return 0;

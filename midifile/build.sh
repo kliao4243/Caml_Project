@@ -1,0 +1,1 @@
+clang++ -O3 -Wall -Iinclude -std=c++11 -o midi_generator midi_generator.cpp -Llib -lmidifile

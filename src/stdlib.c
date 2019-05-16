@@ -1,17 +1,22 @@
 #include <stdio.h>
+#include <stdlib.h> 
+#include <time.h>
+
 struct _track{
 	int instrument;
 	char** melody;
 	int* rhythm;
 };
 
-int print_arr(int a){
-    int res = a + 100;
-    printf("%d\n",res);
-	return 0;
+char* up_8(char* s){
+    return s;
 }
+char* down_8(char* s){
+    return s;
+}
+
 int pitch_to_int(char* s){
-    if(s == "1b1")
+    if(s[0] == '1'&&s[1] == 'b'&&s[2] == '1')
         return 0;
     char a = s[0];
     char b = s[1];
@@ -34,3 +39,6 @@ int pitch_to_int(char* s){
     return result;
 }
 
+int ran(int range){
+    return (rand() % range);
+}

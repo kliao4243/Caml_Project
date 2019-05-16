@@ -7,8 +7,8 @@ struct _track{
 _track build_track(int instrument, int size, Pitch[] melody, int[] rhythm){
 	_track res;
 	int i;
-    Pitch[100] new_melody = [melody[0]];
-    int[100] new_rhythm = [rhythm[0]];
+    Pitch[50] new_melody = [melody[0]];
+    int[50] new_rhythm = [rhythm[0]];
     for(i = 1; i < size; i = i + 1){
         new_melody = new_melody@[1b1];
         new_melody[i] = melody[i];
