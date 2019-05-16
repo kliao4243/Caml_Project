@@ -5,45 +5,94 @@
 _main:                                  ## @main
 	.cfi_startproc
 ## %bb.0:                               ## %entry
-	pushq	%rbx
+	pushq	%rbp
 	.cfi_def_cfa_offset 16
-	subq	$32, %rsp
+	pushq	%r15
+	.cfi_def_cfa_offset 24
+	pushq	%r14
+	.cfi_def_cfa_offset 32
+	pushq	%r13
+	.cfi_def_cfa_offset 40
+	pushq	%r12
 	.cfi_def_cfa_offset 48
-	.cfi_offset %rbx, -16
+	pushq	%rbx
+	.cfi_def_cfa_offset 56
+	subq	$24, %rsp
+	.cfi_def_cfa_offset 80
+	.cfi_offset %rbx, -56
+	.cfi_offset %r12, -48
+	.cfi_offset %r13, -40
+	.cfi_offset %r14, -32
+	.cfi_offset %r15, -24
+	.cfi_offset %rbp, -16
+	movl	$50, %edi
+	xorl	%eax, %eax
+	callq	_ran
+	movl	%eax, 4(%rsp)           ## 4-byte Spill
+	movl	$50, %edi
+	xorl	%eax, %eax
+	callq	_ran
+	movl	%eax, %r15d
+	movl	$50, %edi
+	xorl	%eax, %eax
+	callq	_ran
+	movl	%eax, %r12d
+	movl	$50, %edi
+	xorl	%eax, %eax
+	callq	_ran
+	movl	%eax, %r13d
+	movl	$50, %edi
+	xorl	%eax, %eax
+	callq	_ran
+	movl	%eax, %ebx
+	movl	$50, %edi
+	xorl	%eax, %eax
+	callq	_ran
+	movl	%eax, %ebp
+	movl	$50, %edi
+	xorl	%eax, %eax
+	callq	_ran
+	movl	%eax, %r14d
 	movl	$28, %edi
 	callq	_malloc
-	movabsq	$8589934601, %rcx       ## imm = 0x200000009
-	movq	%rcx, (%rax)
-	movabsq	$12884901891, %rcx      ## imm = 0x300000003
-	movq	%rcx, 8(%rax)
-	movabsq	$4294967300, %rcx       ## imm = 0x100000004
-	movq	%rcx, 16(%rax)
-	movl	$6, 24(%rax)
-	movq	%rax, 24(%rsp)
+	movl	4(%rsp), %ecx           ## 4-byte Reload
+	movl	%ecx, (%rax)
+	movl	%r15d, 4(%rax)
+	movl	%r12d, 8(%rax)
+	movl	%r13d, 12(%rax)
+	movl	%ebx, 16(%rax)
+	movl	%ebp, 20(%rax)
+	movl	%r14d, 24(%rax)
+	movq	%rax, 16(%rsp)
 	movq	%rax, %rdi
 	movl	$7, %esi
 	callq	_bubble_sort
-	movq	%rax, 16(%rsp)
-	movl	$0, 12(%rsp)
+	movq	%rax, 8(%rsp)
+	movl	$0, (%rsp)
 	leaq	L_fmt(%rip), %rbx
-	cmpl	$6, 12(%rsp)
+	cmpl	$6, (%rsp)
 	jg	LBB0_3
 	.p2align	4, 0x90
 LBB0_2:                                 ## %while_body
                                         ## =>This Inner Loop Header: Depth=1
-	movq	16(%rsp), %rax
-	movslq	12(%rsp), %rcx
+	movq	8(%rsp), %rax
+	movslq	(%rsp), %rcx
 	movl	(%rax,%rcx,4), %esi
 	movq	%rbx, %rdi
 	xorl	%eax, %eax
 	callq	_printf
-	incl	12(%rsp)
-	cmpl	$6, 12(%rsp)
+	incl	(%rsp)
+	cmpl	$6, (%rsp)
 	jle	LBB0_2
 LBB0_3:                                 ## %merge
 	xorl	%eax, %eax
-	addq	$32, %rsp
+	addq	$24, %rsp
 	popq	%rbx
+	popq	%r12
+	popq	%r13
+	popq	%r14
+	popq	%r15
+	popq	%rbp
 	retq
 	.cfi_endproc
                                         ## -- End function

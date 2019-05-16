@@ -12,47 +12,56 @@ declare i8* @puts(i8*, ...)
 
 declare i32 @pitch_to_int(i8*, ...)
 
+declare i32 @ran(i32, ...)
+
 define i32 @main() {
 entry:
   %Arr = alloca i32*
   %sorted = alloca i32*
   %i = alloca i32
+  %ran = call i32 (i32, ...) @ran(i32 50)
+  %ran1 = call i32 (i32, ...) @ran(i32 50)
+  %ran2 = call i32 (i32, ...) @ran(i32 50)
+  %ran3 = call i32 (i32, ...) @ran(i32 50)
+  %ran4 = call i32 (i32, ...) @ran(i32 50)
+  %ran5 = call i32 (i32, ...) @ran(i32 50)
+  %ran6 = call i32 (i32, ...) @ran(i32 50)
   %malloccall = tail call i8* @malloc(i32 mul (i32 ptrtoint (i32* getelementptr (i32, i32* null, i32 1) to i32), i32 7))
   %0 = bitcast i8* %malloccall to i32*
   %1 = getelementptr i32, i32* %0, i32 0
-  store i32 9, i32* %1
+  store i32 %ran, i32* %1
   %2 = getelementptr i32, i32* %0, i32 1
-  store i32 2, i32* %2
+  store i32 %ran1, i32* %2
   %3 = getelementptr i32, i32* %0, i32 2
-  store i32 3, i32* %3
+  store i32 %ran2, i32* %3
   %4 = getelementptr i32, i32* %0, i32 3
-  store i32 3, i32* %4
+  store i32 %ran3, i32* %4
   %5 = getelementptr i32, i32* %0, i32 4
-  store i32 4, i32* %5
+  store i32 %ran4, i32* %5
   %6 = getelementptr i32, i32* %0, i32 5
-  store i32 1, i32* %6
+  store i32 %ran5, i32* %6
   %7 = getelementptr i32, i32* %0, i32 6
-  store i32 6, i32* %7
+  store i32 %ran6, i32* %7
   store i32* %0, i32** %Arr
-  %Arr1 = load i32*, i32** %Arr
-  %bubble_sort_result = call i32* @bubble_sort(i32* %Arr1, i32 7)
+  %Arr7 = load i32*, i32** %Arr
+  %bubble_sort_result = call i32* @bubble_sort(i32* %Arr7, i32 7)
   store i32* %bubble_sort_result, i32** %sorted
   store i32 0, i32* %i
   br label %while
 
 while:                                            ; preds = %while_body, %entry
-  %i5 = load i32, i32* %i
-  %tmp6 = icmp slt i32 %i5, 7
-  br i1 %tmp6, label %while_body, label %merge
+  %i11 = load i32, i32* %i
+  %tmp12 = icmp slt i32 %i11, 7
+  br i1 %tmp12, label %while_body, label %merge
 
 while_body:                                       ; preds = %while
-  %sorted2 = load i32*, i32** %sorted
-  %i3 = load i32, i32* %i
-  %8 = getelementptr i32, i32* %sorted2, i32 %i3
+  %sorted8 = load i32*, i32** %sorted
+  %i9 = load i32, i32* %i
+  %8 = getelementptr i32, i32* %sorted8, i32 %i9
   %9 = load i32, i32* %8
   %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @fmt, i32 0, i32 0), i32 %9)
-  %i4 = load i32, i32* %i
-  %tmp = add i32 %i4, 1
+  %i10 = load i32, i32* %i
+  %tmp = add i32 %i10, 1
   store i32 %tmp, i32* %i
   br label %while
 

@@ -75,6 +75,11 @@ let translate program =
       L.var_arg_function_type i32_t [|pitch_t|] in
   let pitch_to_int_func : L.llvalue = 
       L.declare_function "pitch_to_int" pitch_to_int the_module in
+  let random : L.lltype = 
+      L.var_arg_function_type i32_t [| i32_t |] in
+  let random_function : L.llvalue = 
+      L.declare_function "ran" random the_module in
+
 
   let struct_decls = 
     let struct_decl m sdecl =
@@ -282,6 +287,7 @@ let translate program =
       A.Array (_,b) -> L.const_int i32_t b
       | _ -> raise (Failure("Array not found")))
     | SCall ("pitch_to_int", e) -> L.build_call pitch_to_int_func [|expr builder (List.hd e)|] "pitchtoint" builder
+    | SCall ("random", e) -> L.build_call random_function [|expr builder (List.hd e)|] "ran" builder
     | SCall (f, args) ->
        let (fdef, fdecl) = StringMap.find f function_decls in
        let llargs = List.rev (List.map (expr builder) (List.rev args)) in

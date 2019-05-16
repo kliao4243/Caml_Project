@@ -14,9 +14,10 @@ int[] bubble_sort(int[] Arr, int sz){
 	return Arr;
 }
 
+
 int main()
 {	
-	int[7] Arr = [9,2,3,3,4,1,6];
+	int[7] Arr = [random(50),random(50),random(50),random(50),random(50),random(50),random(50)];
 	int[7] sorted = bubble_sort(Arr, 7);
 	int i;
 	for (i=0;i<size(sorted);i=i+1){

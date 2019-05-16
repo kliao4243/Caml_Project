@@ -66,7 +66,8 @@ let check program =
       (Void, "printbig", [(Int,"x",Noexpr)]);
       (Void, "prints", [(String,"x",Noexpr)]);
       (Void, "printp", [(Pitch,"x",Noexpr)]);
-      (Int, "pitch_to_int", [(Pitch,"x",Noexpr)])]
+      (Int, "pitch_to_int", [(Pitch,"x",Noexpr)]);
+      (Int, "random", [(Int,"x",Noexpr)])]
     in 
     List.fold_left add_bind StringMap.empty builtin_funcs
   in
