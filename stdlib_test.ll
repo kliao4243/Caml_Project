@@ -13,12 +13,12 @@ source_filename = "MicroC"
 @"4#.8" = private unnamed_addr constant [4 x i8] c"3^5\00", align 1
 @"4#.9" = private unnamed_addr constant [4 x i8] c"4^5\00", align 1
 @"4#.10" = private unnamed_addr constant [4 x i8] c"5^5\00", align 1
-@"123" = private unnamed_addr constant [9 x i8] c"adsfsdaf\00", align 1
 @fmt.11 = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
 @fmt.12 = private unnamed_addr constant [4 x i8] c"%g\0A\00", align 1
-@"123.13" = private unnamed_addr constant [12 x i8] c"track_start\00", align 1
-@fmt.14 = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
-@fmt.15 = private unnamed_addr constant [4 x i8] c"%g\0A\00", align 1
+@"123" = private unnamed_addr constant [12 x i8] c"track_start\00", align 1
+@fmt.13 = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
+@fmt.14 = private unnamed_addr constant [4 x i8] c"%g\0A\00", align 1
+@"4#.15" = private unnamed_addr constant [4 x i8] c"1b1\00", align 1
 @"4#.16" = private unnamed_addr constant [4 x i8] c"1b1\00", align 1
 @"4#.17" = private unnamed_addr constant [4 x i8] c"1b1\00", align 1
 @"4#.18" = private unnamed_addr constant [4 x i8] c"1b1\00", align 1
@@ -38,7 +38,6 @@ source_filename = "MicroC"
 @"4#.32" = private unnamed_addr constant [4 x i8] c"1b1\00", align 1
 @"4#.33" = private unnamed_addr constant [4 x i8] c"1b1\00", align 1
 @"4#.34" = private unnamed_addr constant [4 x i8] c"1b1\00", align 1
-@"4#.35" = private unnamed_addr constant [4 x i8] c"1b1\00", align 1
 
 declare i32 @printf(i8*, ...)
 
@@ -49,6 +48,7 @@ declare i32 @pitch_to_int(i8*, ...)
 define i32 @main() {
 entry:
   %i = alloca i32
+  %a = alloca i32
   %melody_a = alloca i8**
   %rhythm_a = alloca i32*
   %melody_b = alloca i8**
@@ -103,7 +103,6 @@ entry:
   store { i32*, i8**, i32, i32 } %build_track_result7, { i32*, i8**, i32, i32 }* %track_2
   %track_18 = load { i32*, i8**, i32, i32 }, { i32*, i8**, i32, i32 }* %track_1
   %generate_music_result = call i32 @generate_music({ i32*, i8**, i32, i32 } %track_18)
-  %prints = call i8* (i8*, ...) @puts(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @"123", i32 0, i32 0))
   %track_19 = load { i32*, i8**, i32, i32 }, { i32*, i8**, i32, i32 }* %track_1
   %generate_music_result10 = call i32 @generate_music({ i32*, i8**, i32, i32 } %track_19)
   ret i32 0
@@ -114,7 +113,7 @@ entry:
   %t1 = alloca { i32*, i8**, i32, i32 }
   store { i32*, i8**, i32, i32 } %t, { i32*, i8**, i32, i32 }* %t1
   %i = alloca i32
-  %prints = call i8* (i8*, ...) @puts(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @"123.13", i32 0, i32 0))
+  %prints = call i8* (i8*, ...) @puts(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @"123", i32 0, i32 0))
   %struct.ptr = getelementptr inbounds { i32*, i8**, i32, i32 }, { i32*, i8**, i32, i32 }* %t1, i32 0, i32 3
   %struct.val.instrument = load i32, i32* %struct.ptr
   %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @fmt.11, i32 0, i32 0), i32 %struct.val.instrument)
@@ -171,45 +170,45 @@ entry:
   %malloccall = tail call i8* @malloc(i32 mul (i32 ptrtoint (i1** getelementptr (i1*, i1** null, i32 1) to i32), i32 20))
   %0 = bitcast i8* %malloccall to i8**
   %1 = getelementptr i8*, i8** %0, i32 0
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.16", i32 0, i32 0), i8** %1
+  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.15", i32 0, i32 0), i8** %1
   %2 = getelementptr i8*, i8** %0, i32 1
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.17", i32 0, i32 0), i8** %2
+  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.16", i32 0, i32 0), i8** %2
   %3 = getelementptr i8*, i8** %0, i32 2
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.18", i32 0, i32 0), i8** %3
+  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.17", i32 0, i32 0), i8** %3
   %4 = getelementptr i8*, i8** %0, i32 3
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.19", i32 0, i32 0), i8** %4
+  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.18", i32 0, i32 0), i8** %4
   %5 = getelementptr i8*, i8** %0, i32 4
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.20", i32 0, i32 0), i8** %5
+  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.19", i32 0, i32 0), i8** %5
   %6 = getelementptr i8*, i8** %0, i32 5
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.21", i32 0, i32 0), i8** %6
+  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.20", i32 0, i32 0), i8** %6
   %7 = getelementptr i8*, i8** %0, i32 6
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.22", i32 0, i32 0), i8** %7
+  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.21", i32 0, i32 0), i8** %7
   %8 = getelementptr i8*, i8** %0, i32 7
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.23", i32 0, i32 0), i8** %8
+  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.22", i32 0, i32 0), i8** %8
   %9 = getelementptr i8*, i8** %0, i32 8
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.24", i32 0, i32 0), i8** %9
+  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.23", i32 0, i32 0), i8** %9
   %10 = getelementptr i8*, i8** %0, i32 9
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.25", i32 0, i32 0), i8** %10
+  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.24", i32 0, i32 0), i8** %10
   %11 = getelementptr i8*, i8** %0, i32 10
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.26", i32 0, i32 0), i8** %11
+  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.25", i32 0, i32 0), i8** %11
   %12 = getelementptr i8*, i8** %0, i32 11
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.27", i32 0, i32 0), i8** %12
+  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.26", i32 0, i32 0), i8** %12
   %13 = getelementptr i8*, i8** %0, i32 12
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.28", i32 0, i32 0), i8** %13
+  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.27", i32 0, i32 0), i8** %13
   %14 = getelementptr i8*, i8** %0, i32 13
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.29", i32 0, i32 0), i8** %14
+  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.28", i32 0, i32 0), i8** %14
   %15 = getelementptr i8*, i8** %0, i32 14
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.30", i32 0, i32 0), i8** %15
+  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.29", i32 0, i32 0), i8** %15
   %16 = getelementptr i8*, i8** %0, i32 15
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.31", i32 0, i32 0), i8** %16
+  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.30", i32 0, i32 0), i8** %16
   %17 = getelementptr i8*, i8** %0, i32 16
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.32", i32 0, i32 0), i8** %17
+  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.31", i32 0, i32 0), i8** %17
   %18 = getelementptr i8*, i8** %0, i32 17
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.33", i32 0, i32 0), i8** %18
+  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.32", i32 0, i32 0), i8** %18
   %19 = getelementptr i8*, i8** %0, i32 18
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.34", i32 0, i32 0), i8** %19
+  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.33", i32 0, i32 0), i8** %19
   %20 = getelementptr i8*, i8** %0, i32 19
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.35", i32 0, i32 0), i8** %20
+  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"4#.34", i32 0, i32 0), i8** %20
   store i8** %0, i8*** %new_melody
   %malloccall5 = tail call i8* @malloc(i32 mul (i32 ptrtoint (i32* getelementptr (i32, i32* null, i32 1) to i32), i32 20))
   %21 = bitcast i8* %malloccall5 to i32*

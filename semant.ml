@@ -1,14 +1,10 @@
-(* Semantic checking for the MicroC compiler *)
+(* Semantic checking for the CAML compiler *)
 
 open Ast
 open Sast
 
 module StringMap = Map.Make(String)
 
-(* Semantic checking of the AST. Returns an SAST if successful,
-   throws an exception if something is wrong.
-
-   Check each global variable, then check each function *)
 
 let check program = 
 
@@ -29,9 +25,7 @@ let check program =
 
   (**** Check global variables ****)
   check_binds "global" program.globals;
-
   (**** Check functions ****)
-
   let rec add_all_include (all_program: Ast.program) : Ast.program = 
     let add_current_include (current_program: Ast.program)(Ast.Include(incl) : Ast.include_decl) : Ast.program= 
       let file_in = open_in incl in

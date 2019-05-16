@@ -1,4 +1,4 @@
-#include "stdlib.mc";
+#include "src/stdlib.cl";
 
 int main(){
 	int[2] a = [1,2];

@@ -69,9 +69,6 @@ _main:                                  ## @main
 	movl	24(%rsp), %edx
 	movl	28(%rsp), %ecx
 	callq	_generate_music
-	leaq	L_123(%rip), %rdi
-	xorl	%eax, %eax
-	callq	_puts
 	movq	8(%rsp), %rdi
 	movq	16(%rsp), %rsi
 	movl	24(%rsp), %edx
@@ -96,7 +93,7 @@ _generate_music:                        ## @generate_music
 	movl	%edx, 24(%rsp)
 	movq	%rsi, 16(%rsp)
 	movq	%rdi, 8(%rsp)
-	leaq	L_123.13(%rip), %rdi
+	leaq	L_123(%rip), %rdi
 	xorl	%eax, %eax
 	callq	_puts
 	movl	28(%rsp), %esi
@@ -158,45 +155,45 @@ _build_track:                           ## @build_track
 	movq	%r8, 40(%rsp)
 	movl	$160, %edi
 	callq	_malloc
-	leaq	"L_4#.16"(%rip), %rcx
+	leaq	"L_4#.15"(%rip), %rcx
 	movq	%rcx, (%rax)
-	leaq	"L_4#.17"(%rip), %rcx
+	leaq	"L_4#.16"(%rip), %rcx
 	movq	%rcx, 8(%rax)
-	leaq	"L_4#.18"(%rip), %rcx
+	leaq	"L_4#.17"(%rip), %rcx
 	movq	%rcx, 16(%rax)
-	leaq	"L_4#.19"(%rip), %rcx
+	leaq	"L_4#.18"(%rip), %rcx
 	movq	%rcx, 24(%rax)
-	leaq	"L_4#.20"(%rip), %rcx
+	leaq	"L_4#.19"(%rip), %rcx
 	movq	%rcx, 32(%rax)
-	leaq	"L_4#.21"(%rip), %rcx
+	leaq	"L_4#.20"(%rip), %rcx
 	movq	%rcx, 40(%rax)
-	leaq	"L_4#.22"(%rip), %rcx
+	leaq	"L_4#.21"(%rip), %rcx
 	movq	%rcx, 48(%rax)
-	leaq	"L_4#.23"(%rip), %rcx
+	leaq	"L_4#.22"(%rip), %rcx
 	movq	%rcx, 56(%rax)
-	leaq	"L_4#.24"(%rip), %rcx
+	leaq	"L_4#.23"(%rip), %rcx
 	movq	%rcx, 64(%rax)
-	leaq	"L_4#.25"(%rip), %rcx
+	leaq	"L_4#.24"(%rip), %rcx
 	movq	%rcx, 72(%rax)
-	leaq	"L_4#.26"(%rip), %rcx
+	leaq	"L_4#.25"(%rip), %rcx
 	movq	%rcx, 80(%rax)
-	leaq	"L_4#.27"(%rip), %rcx
+	leaq	"L_4#.26"(%rip), %rcx
 	movq	%rcx, 88(%rax)
-	leaq	"L_4#.28"(%rip), %rcx
+	leaq	"L_4#.27"(%rip), %rcx
 	movq	%rcx, 96(%rax)
-	leaq	"L_4#.29"(%rip), %rcx
+	leaq	"L_4#.28"(%rip), %rcx
 	movq	%rcx, 104(%rax)
-	leaq	"L_4#.30"(%rip), %rcx
+	leaq	"L_4#.29"(%rip), %rcx
 	movq	%rcx, 112(%rax)
-	leaq	"L_4#.31"(%rip), %rcx
+	leaq	"L_4#.30"(%rip), %rcx
 	movq	%rcx, 120(%rax)
-	leaq	"L_4#.32"(%rip), %rcx
+	leaq	"L_4#.31"(%rip), %rcx
 	movq	%rcx, 128(%rax)
-	leaq	"L_4#.33"(%rip), %rcx
+	leaq	"L_4#.32"(%rip), %rcx
 	movq	%rcx, 136(%rax)
-	leaq	"L_4#.34"(%rip), %rcx
+	leaq	"L_4#.33"(%rip), %rcx
 	movq	%rcx, 144(%rax)
-	leaq	"L_4#.35"(%rip), %rcx
+	leaq	"L_4#.34"(%rip), %rcx
 	movq	%rcx, 152(%rax)
 	movq	%rax, 32(%rsp)
 	movl	$80, %edi
@@ -289,23 +286,23 @@ L_fmt.1:                                ## @fmt.1
 "L_4#.10":                              ## @"4#.10"
 	.asciz	"5^5"
 
-L_123:                                  ## @"123"
-	.asciz	"adsfsdaf"
-
 L_fmt.11:                               ## @fmt.11
 	.asciz	"%d\n"
 
 L_fmt.12:                               ## @fmt.12
 	.asciz	"%g\n"
 
-L_123.13:                               ## @"123.13"
+L_123:                                  ## @"123"
 	.asciz	"track_start"
 
-L_fmt.14:                               ## @fmt.14
+L_fmt.13:                               ## @fmt.13
 	.asciz	"%d\n"
 
-L_fmt.15:                               ## @fmt.15
+L_fmt.14:                               ## @fmt.14
 	.asciz	"%g\n"
+
+"L_4#.15":                              ## @"4#.15"
+	.asciz	"1b1"
 
 "L_4#.16":                              ## @"4#.16"
 	.asciz	"1b1"
@@ -362,9 +359,6 @@ L_fmt.15:                               ## @fmt.15
 	.asciz	"1b1"
 
 "L_4#.34":                              ## @"4#.34"
-	.asciz	"1b1"
-
-"L_4#.35":                              ## @"4#.35"
 	.asciz	"1b1"
 
 
