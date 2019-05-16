@@ -62,10 +62,6 @@ let translate program =
       in StringMap.add n (L.define_global n init the_module) m in
     List.fold_left global_var StringMap.empty globals 
   in
-  let global_var_types = 
-  let global_var_type m (t, n, _) = StringMap.add n t m 
-  in List.fold_left global_var_type StringMap.empty globals
-  in
   let printf_t : L.lltype = 
       L.var_arg_function_type i32_t [| str_t |] in
   let printf_func : L.llvalue = 
@@ -90,7 +86,7 @@ let translate program =
   in
   let struct_lookup n = try StringMap.find n struct_decls
     with Not_found -> raise (Failure ("struct " ^ n ^ " not found")) in
-  let rec ltype_of_typ = function
+  let ltype_of_typ = function
     A.Struct n -> fst (struct_lookup n) 
     | t -> ltype_of_primitive t
   in
@@ -116,7 +112,7 @@ let translate program =
        declared variables.  Allocate each on the stack, initialize their
        value, if appropriate, and remember their values in the "locals" map *)
     let local_vars =
-      let add_formal m (t, n, e) p = 
+      let add_formal m (t, n, _) p = 
         L.set_value_name n p;
       let local = L.build_alloca (ltype_of_typ t) n builder in
         ignore (L.build_store p local builder);
@@ -124,7 +120,7 @@ let translate program =
 
       (* Allocate space for any locally declared variables and add the
        * resulting registers to our map *)
-      and add_local m (t, n, e) =
+      and add_local m (t, n, _) =
 
       let local_var = L.build_alloca (ltype_of_typ t) n builder in 
       StringMap.add n local_var m in
@@ -229,7 +225,7 @@ let translate program =
             let eptr = L.build_gep ptr [|L.const_int i32_t i |] "" builder in
             let cptr = L.build_pointercast eptr 
                 (L.pointer_type llarray_t) "" builder in
-            L.build_store access cptr builder
+            ignore(L.build_store access cptr builder)
         done; ptr
       | SBinop ((A.Float,_) as e1, op, e2) ->
         let e1' = expr builder e1
@@ -282,8 +278,8 @@ let translate program =
       | A.Float -> L.build_call printf_func [| float_format_str ; (expr builder (t,e)) |] "printf" builder
       | A.Pitch -> L.build_call prints_func [|(expr builder (t,e)) |] "prints" builder
       | _ -> raise (Failure (A.string_of_typ t)))
-    | SCall ("size",[t,e]) -> (match t with 
-      Array (a,b) -> L.const_int i32_t b
+    | SCall ("size",[t,_]) -> (match t with 
+      A.Array (_,b) -> L.const_int i32_t b
       | _ -> raise (Failure("Array not found")))
     | SCall ("pitch_to_int", e) -> L.build_call pitch_to_int_func [|expr builder (List.hd e)|] "pitchtoint" builder
     | SCall (f, args) ->

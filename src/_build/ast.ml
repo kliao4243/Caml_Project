@@ -125,9 +125,9 @@ let rec string_of_stmt = function
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
 
 
-let string_of_vdecl (t, id, expr) = string_of_typ t ^ " " ^ id ^ ";\n" 
+let string_of_vdecl (t, id, _) = string_of_typ t ^ " " ^ id ^ ";\n" 
 
-let get_second (t, id, expr) = id
+let get_second (_, id, _) = id
 
 let string_of_fdecl fdecl =
   string_of_typ fdecl.typ ^ " " ^
