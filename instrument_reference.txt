@@ -1,0 +1,22 @@
+
+1 "acoustic piano";
+
+2 "electric piano";
+
+25 "acoustic guitar";
+
+26 "electric jazz guitar";
+
+29 "overloaded guitar";
+
+30 "distortion guitar";
+
+33 "electric bass";
+
+40 "violin";
+
+56 "trumpet";
+
+73 "flute";
+
+other "unknown";

@@ -24,9 +24,9 @@ int main()
      4,4,8,8,8,8,
      4,8,8,8,8,8,8];
     
-    Pitch[10] chorus = [3^4,3^4,3^4,3^4,1^4,1^4,3^4,7^3,3^4,1^4];
+    Pitch[10] chorus = [3^4,3^4,3^4,2^4,1^4,1^4,3^4,7^3,3^4,1^4];
     int[10] chourus_rhythm = [1,2,2,1,1,1,1,1,1,1];
-	track1 = build_track(30, 49, melody, rhythm);
+	track1 = build_track(25, 49, melody, rhythm);
     track2 = build_track(1, 10, chorus, chourus_rhythm);
 	generate_music(track1);
     generate_music(track2);
