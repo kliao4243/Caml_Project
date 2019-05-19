@@ -1,4 +1,5 @@
 (* Abstract Syntax Tree and functions for printing it *)
+(* Authors: Yuanji Huang, Kunjian Liao, Yipeng Zhang*)
 
 type op = Add | Sub | Mult | Div | Con | Equal | Neq | Less | Leq | Greater | Geq |
           And | Or | Mod
