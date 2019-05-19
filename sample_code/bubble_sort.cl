@@ -16,10 +16,17 @@ int[] bubble_sort(int[] Arr, int sz){
 
 
 int main()
-{	
-	int[7] Arr = [random(50),random(50),random(50),random(50),random(50),random(50),random(50)];
-	int[7] sorted = bubble_sort(Arr, 7);
-	int i;
+{
+    int i;
+    int[7] sorted;
+	int[7] Arr = [random(50),random(50),random(50),random(50),
+                  random(50),random(50),random(50)];
+    print("original array");
+    for (i=0;i<size(Arr);i=i+1){
+        print(Arr[i]);
+    }
+	sorted = bubble_sort(Arr, 7);
+    print("sorted array");
 	for (i=0;i<size(sorted);i=i+1){
 		print(sorted[i]);
 	}

@@ -55,8 +55,7 @@ if [ "$1" = "-o" ]||[ "$1" = "-txt" ]
     cat $f | ./src/caml.native > "$n.ll"
     llc -relocation-model=pic "$n.ll"
     cc -o $n.exe "$n.s" "src/stdlib.o" "-lm"
-    ./$n.exe > ./$n.txt
-    rm $n.ll
+    ./$n.exe > ./$
     rm $n.s
     rm $n.exe
     exit 0

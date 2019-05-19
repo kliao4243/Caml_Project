@@ -42,7 +42,10 @@ decls:
  | decls fdecl { {includes = $1.includes; globals = $1.globals; functions = ($2 :: $1.functions); structs = $1.structs} }
  | decls sdecl { {includes = $1.includes; globals = $1.globals; functions = $1.functions; structs = ($2 :: $1.structs)} }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 52805d14c64e8cd549a84c2dc2cc1c9304ed08ee
 idecl:
   POUND INCLUDE SLIT SEMI { Include($3) }
  
