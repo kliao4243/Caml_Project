@@ -23,7 +23,6 @@ type expr =
   | StructAccess of expr * string
   | Noexpr
 
-type bind = typ * string
 type bind_value = typ * string * expr
 
 type stmt =

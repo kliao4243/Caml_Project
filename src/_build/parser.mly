@@ -26,7 +26,7 @@ open Ast
 %left LT GT LEQ GEQ
 %left PLUS MINUS 
 %left TIMES DIVIDE MOD
-%left CONCAT 
+%right CONCAT 
 %right NOT
 %left DOT
 %left LSQUARE RSQUARE 
@@ -43,10 +43,6 @@ decls:
  | decls sdecl { {includes = $1.includes; globals = $1.globals; functions = $1.functions; structs = ($2 :: $1.structs)} }
 
 
-idecl_list:
-      /* nothing */              { [] }
-    |   idecl_list idecl { $2 :: $1 }
-
 idecl:
   POUND INCLUDE SLIT SEMI { Include($3) }
  
@@ -55,7 +51,7 @@ vdecl:
    | typ ID ASSIGN expr SEMI { ($1, $2, $4) }
 
 vdecl_list:
-    /* nothing */    { [] }
+  /* nothing */    { [] }
   | vdecl_list vdecl { $2 :: $1 }
 
 fdecl:
@@ -79,7 +75,7 @@ formals_opt:
 	| formal_list   { $1 }
 
 formal_list:
-		typ ID                   { [($1,$2,Noexpr)]     }
+	typ ID                   { [($1,$2,Noexpr)]     }
 	| formal_list COMMA typ ID { ($3,$4,Noexpr) :: $1 }
 
 typ:
@@ -94,7 +90,7 @@ typ:
   | typ LSQUARE RSQUARE { Array($1,10) }
 
 stmt_list:
-		/* nothing */  { [] }
+	/* nothing */  { [] }
 	| stmt_list stmt { $2 :: $1 }
 
 stmt:
@@ -142,9 +138,9 @@ expr:
 	| LSQUARE args_opt RSQUARE   { ArrayLit($2) }
 
 args_opt:
-		/* nothing */ { [] }
+	/* nothing */ { [] }
 	| args_list  { List.rev $1 }
 
 args_list:
-		expr                    { [$1] }
+	expr                    { [$1] }
 	| args_list COMMA expr { $3 :: $1 }

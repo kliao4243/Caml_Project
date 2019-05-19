@@ -32,7 +32,6 @@ if [ "$1" = "-s" ]||[ "$1" = "-song" ]
     ./$n.exe > $n
     ./midifile/midi_generator -o ./$n
     rm $n
-    rm $n.ll
     rm $n.s
     rm $n.exe
     exit 0
@@ -45,7 +44,6 @@ if [ "$1" = "-p" ]||[ "$1" = "-print" ]
     llc -relocation-model=pic "$n.ll"
     cc -o $n.exe "$n.s" "src/stdlib.o" "-lm"
     ./$n.exe
-    rm $n.ll
     rm $n.s
     rm $n.exe
     exit 0
