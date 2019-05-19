@@ -1,0 +1,66 @@
+9703d77,yuanjihuang,yh3059@columbia.edu,add up and down
+2d7a8b1,yuanjihuang,yh3059@columbia.edu,final version
+9badded,wolszhang,wolszhang@gmail.com,bubble sort
+25678ba,wolszhang,wolszhang@gmail.com,warning fixed, bubble sort for demo
+26036f9,yuanjihuang,yh3059@columbia.edu,delete useless files
+44792ea,yuanjihuang,yh3059@columbia.edu,merge
+1672c03,yuanjihuang,yh3059@columbia.edu,add stdlib
+5f10958,wolszhang,wolszhang@gmail.com,delete imcomplete work, ready for demo
+b229bf2,yuanjihuang,yh3059@columbia.edu,add midifile
+2a5b28d,yuanjihuang,yh3059@columbia.edu,add c and caml stdlib
+6c36e3b,yuanjihuang,yh3059@columbia.edu,merge
+b3f06a1,Liao,kunjian@dyn-160-39-170-66.dyn.columbia.edu,add import struct test
+711a6d4,yuanjihuang,yh3059@columbia.edu,merged
+65c0f4b,kliao4243,32171833+kliao4243@users.noreply.github.com,Merge pull request #6 from kliao4243/std_branch
+b774130,Liao,kunjian@dyn-160-39-170-66.dyn.columbia.edu,merge parser.mly
+fad24ad,Liao,kunjian@dyn-160-39-148-139.dyn.columbia.edu,merge include
+ba9103f,yuanjihuang,yh3059@columbia.edu,before merge
+d8cf479,wolszhang,wolszhang@gmail.com,include concat function
+a249f3a,Liao,kunjian@dyn-160-39-148-142.dyn.columbia.edu,include module finish
+f9b10a8,wolszhang,wolszhang@gmail.com,fix p
+f876408,Liao,kunjian@dyn-160-39-148-142.dyn.columbia.edu,try parse program into semantic
+c5aa95c,yuanjihuang,yh3059@columbia.edu,no change
+b262c28,wolszhang,wolszhang@gmail.com,Array size function
+085171d,Liao,kunjian@dyn-160-39-148-142.dyn.columbia.edu,std
+7c8bfbe,yuanjihuang,yh3059@columbia.edu,function can take array as argument
+c2e0e14,yuanjihuang,yh3059@columbia.edu,array concat
+a2e72f8,yuanjihuang,yh3059@columbia.edu,Merge branch 'master' of https://github.com/kliao4243/Caml_Project
+f973377,yuanjihuang,yh3059@columbia.edu,modify array
+e19183d,Liao,kunjian@dyn-160-39-148-108.dyn.columbia.edu,version revert back to version 1
+6df02f5,yuanjihuang,yh3059@columbia.edu, merge
+969da72,yuanjihuang,yh3059@columbia.edu,version1
+d4b94c1,Liao,kunjian@dyn-160-39-148-108.dyn.columbia.edu,forgot to delete head index
+c2dcefd,Liao,kunjian@dyn-160-39-148-108.dyn.columbia.edu,merge with integrated print
+3869560,Liao,kunjian@dyn-160-39-148-108.dyn.columbia.edu,code generation struct in progress, to sync
+15c0c12,yuanjihuang,yh3059@columbia.edu,merge confict
+5a95b15,yuanjihuang,yh3059@columbia.edu,delete build
+3394d73,yuanjihuang,yh3059@columbia.edu,assign when declaring
+1ef369e,wolszhang,wolszhang@gmail.com,Merge pull request #4 from kliao4243/Array
+8cf563c,wolszhang,wolszhang@gmail.com,combined print
+eeb6f7d,wolszhang,wolszhang@gmail.com,Merge pull request #3 from kliao4243/Array
+cf84a5a,wolszhang,wolszhang@gmail.com,Merge branch 'master' of https://github.com/kliao4243/Caml_Project into array
+e2529d8,wolszhang,wolszhang@gmail.com,ee
+748fe1c,yuanjihuang,yh3059@columbia.edu,handle conflict
+87127e5,yuanjihuang,yh3059@columbia.edu,merge
+f84f7bf,yuanjihuang,yh3059@columbia.edu,add array assign
+d56e1ea,Liao,kunjian@dyn-160-39-148-108.dyn.columbia.edu,solve dot shift/reduce conflicts
+904814a,wolszhang,wolszhang@gmail.com,pitch_to_int prototype
+530df1d,Liao,kunjian@dyn-160-39-171-219.dyn.columbia.edu,merge struct except code generation to main branch
+1b7df40,wolszhang,wolszhang@gmail.com,print function updated
+3c6746d,Liao,kunjian@dyn-160-39-148-108.dyn.columbia.edu,struct
+107f982,Liao,kunjian@dyn-160-39-148-108.dyn.columbia.edu,struct except code generation
+7ec8fe1,wolszhang,wolszhang@gmail.com,Merge pull request #2 from kliao4243/Array
+e07f5e2,wolszhang,wolszhang@gmail.com,fix shift/reduce conflicts
+04f7c92,wolszhang,wolszhang@gmail.com,Merge pull request #1 from kliao4243/Array
+21334ac,wolszhang,wolszhang@gmail.com,merged version m Please enter the commit message for your changes. Lines starting
+dc9fc88,wolszhang,wolszhang@gmail.com,Merge branch 'master' of https://github.com/kliao4243/Caml_Project into Array
+f153fab,wolszhang,wolszhang@gmail.com,Array function completed Yipeng
+01982c8,wolszhang,wolszhang@gmail.com,add array
+22c7ce4,wolszhang,wolszhang@gmail.com,include Access
+1e06a6d,Liao,kunjian@dyn-160-39-170-158.dyn.columbia.edu,new pitch
+9b517ae,Liao,kunjian@dyn-160-39-170-158.dyn.columbia.edu,pitch correction
+a644129,Liao,kunjian@dyn-160-39-170-158.dyn.columbia.edu,pitch
+25bf953,wolszhang,wolszhang@gmail.com,include size function and iterator
+5026a72,wolszhang,wolszhang@gmail.com,include Array support Array<type> a
+9020f56,yuanjihuang,yh3059@columbia.edu,helloworld works
+2a1e1cc,yuanjihuang,yh3059@columbia.edu,first
