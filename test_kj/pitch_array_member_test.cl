@@ -6,4 +6,5 @@ struct _test{
 int main(){
 	_test a;
 	a.test = [1^4, 1#4];
+	print(a.test[0]);
 }
