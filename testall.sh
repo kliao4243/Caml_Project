@@ -13,6 +13,8 @@ CC="cc"
 # Path to the CAML compiler
 caml="src/caml.native"
 
+TARGET="./target"
+
 # Set time limit for all operations
 ulimit -t 30
 
@@ -81,12 +83,12 @@ Check() {
 
     generatedfiles=""
 
-    generatedfiles="$generatedfiles ${basename}.ll ${basename}.s ${basename}.exe ${basename}.out" &&
-    Run "$caml" "$1" ">" "${basename}.ll" &&
-    Run "$LLC" "-relocation-model=pic" "${basename}.ll" ">" "${basename}.s" &&
-    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "builtins.o" "-lm" &&
-    Run "./${basename}.exe" > "${basename}.out" &&
-    Compare ${basename}.out ${reffile}.out ${basename}.diff
+    generatedfiles="$generatedfiles  target/${basename}.s target/${basename}.exe target/${basename}.out" &&
+    Run "$caml" "$1" ">" "target/${basename}.ll" &&
+    Run "$LLC" "target/${basename}.ll" ">" "target/${basename}.s" &&
+    Run "$CC" "-o" "target/${basename}.exe" "target/${basename}.s" "src/stdlib.o" "-lm" &&
+    Run "target/${basename}.exe" > "target/${basename}.out" &&
+    Compare target/${basename}.out ${reffile}.out target/${basename}.diff
 
     # Report the status and clean up the generated files
 
@@ -167,16 +169,16 @@ if [ $# -ge 1 ]
 then
     files=$@
 else
-    files="test/test-*.cl test/fail-*.cl"
+    files="tests/test_*.cl"
 fi
 
 for file in $files
 do
     case $file in
-	*test-*)
+	*test_*)
 	    Check $file 2>> $globallog
 	    ;;
-	*fail-*)
+	*fail_*)
 	    CheckFail $file 2>> $globallog
 	    ;;
 	*)

@@ -1,5 +1,5 @@
 (* Top-level of the CAML compiler*)
-
+(* Authors: Yuanji Huang, Kunjian Liao, Yipeng Zhang *)
 type action = Ast | Sast | LLVM_IR | Compile
 
 let () =

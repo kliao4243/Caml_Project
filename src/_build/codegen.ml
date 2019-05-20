@@ -1,16 +1,4 @@
-(* Code generation: translate takes a semantically checked AST and
-produces LLVM IR
-
-LLVM tutorial: Make sure to read the OCaml version of the tutorial
-
-http://llvm.org/docs/tutorial/index.html
-
-Detailed documentation on the OCaml LLVM library: 
-
-http://llvm.moe/
-http://llvm.moe/ocaml/
-
-*)
+(* Authors: Yuanji Huang, Kunjian Liao, Yipeng Zhang *)
 
 module L = Llvm
 module A = Ast
@@ -69,7 +57,7 @@ let translate program =
   and pitch_to_int : L.lltype = 
       L.var_arg_function_type i32_t [|pitch_t|] 
   and pitch_to_pitch : L.lltype = 
-      L.var_arg_function_type pitch_t [|pitch_t|] in
+      L.var_arg_function_type i32_t [|pitch_t|] in
 
   let printf_func : L.llvalue = 
       L.declare_function "printf" str_to_int the_module 
@@ -227,7 +215,6 @@ let translate program =
         for i = 0 to sz1+sz2-1 do
             let arr_var = if i < sz1 then expr builder (A.Array(t1, sz1), e1)
                                     else expr builder (A.Array(t2, sz2), e2) in
-
             let idx = if i < sz1 then L.const_int i32_t i 
                       else L.const_int i32_t (i-sz1) in 
             let access = L.build_load (L.build_gep arr_var [| idx |] "" builder) "temp" builder in 
@@ -292,8 +279,8 @@ let translate program =
       | _ -> raise (Failure("Array not found")))
     | SCall ("pitch_to_int", e) -> L.build_call pitch_to_int_func [|expr builder (List.hd e)|] "pitchtoint" builder
     | SCall ("random", e) -> L.build_call random_func [|expr builder (List.hd e)|] "ran" builder
-    | SCall ("up_8", e) -> L.build_call up8_func [|expr builder (List.hd e)|] "up_8" builder
-    | SCall ("down_8", e) -> L.build_call down8_func [|expr builder (List.hd e)|] "down_8" builder
+    | SCall ("up_8", e) -> L.build_call up8_func [|expr builder (List.hd e)|] "" builder
+    | SCall ("down_8", e) -> L.build_call down8_func [|expr builder (List.hd e)|] "" builder
     
 
     | SCall (f, args) ->

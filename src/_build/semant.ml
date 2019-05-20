@@ -1,5 +1,5 @@
 (* Semantic checking for the CAML compiler *)
-
+(* Authors: Yuanji Huang, Kunjian Liao, Yipeng Zhang *)
 open Ast
 open Sast
 

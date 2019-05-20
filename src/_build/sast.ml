@@ -1,5 +1,5 @@
 (* Semantically-checked Abstract Syntax Tree and functions for printing it *)
-
+(* Authors: Yuanji Huang, Kunjian Liao, Yipeng Zhang *)
 open Ast
 
 type sexpr = typ * sx

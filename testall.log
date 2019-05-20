@@ -1,0 +1,153 @@
+/usr/local/opt/llvm/bin/lli
+
+###### Testing test_assign_float
+src/caml.native tests/test_assign_float.cl > target/test_assign_float.ll
+llc target/test_assign_float.ll > target/test_assign_float.s
+cc -o target/test_assign_float.exe target/test_assign_float.s src/stdlib.o -lm
+target/test_assign_float.exe
+diff -b target/test_assign_float.out tests/test_assign_float.out > target/test_assign_float.diff
+###### SUCCESS
+
+###### Testing test_assign_int
+src/caml.native tests/test_assign_int.cl > target/test_assign_int.ll
+llc target/test_assign_int.ll > target/test_assign_int.s
+cc -o target/test_assign_int.exe target/test_assign_int.s src/stdlib.o -lm
+target/test_assign_int.exe
+diff -b target/test_assign_int.out tests/test_assign_int.out > target/test_assign_int.diff
+###### SUCCESS
+
+###### Testing test_assign_pitch
+src/caml.native tests/test_assign_pitch.cl > target/test_assign_pitch.ll
+llc target/test_assign_pitch.ll > target/test_assign_pitch.s
+cc -o target/test_assign_pitch.exe target/test_assign_pitch.s src/stdlib.o -lm
+target/test_assign_pitch.exe
+diff -b target/test_assign_pitch.out tests/test_assign_pitch.out > target/test_assign_pitch.diff
+###### SUCCESS
+
+###### Testing test_assign_string
+src/caml.native tests/test_assign_string.cl > target/test_assign_string.ll
+llc target/test_assign_string.ll > target/test_assign_string.s
+cc -o target/test_assign_string.exe target/test_assign_string.s src/stdlib.o -lm
+target/test_assign_string.exe
+diff -b target/test_assign_string.out tests/test_assign_string.out > target/test_assign_string.diff
+###### SUCCESS
+
+###### Testing test_build_track
+src/caml.native tests/test_build_track.cl > target/test_build_track.ll
+llc target/test_build_track.ll > target/test_build_track.s
+cc -o target/test_build_track.exe target/test_build_track.s src/stdlib.o -lm
+target/test_build_track.exe
+diff -b target/test_build_track.out tests/test_build_track.out > target/test_build_track.diff
+###### SUCCESS
+
+###### Testing test_entertainer
+src/caml.native tests/test_entertainer.cl > target/test_entertainer.ll
+llc target/test_entertainer.ll > target/test_entertainer.s
+cc -o target/test_entertainer.exe target/test_entertainer.s src/stdlib.o -lm
+target/test_entertainer.exe
+diff -b target/test_entertainer.out tests/test_entertainer.out > target/test_entertainer.diff
+###### SUCCESS
+
+###### Testing test_function
+src/caml.native tests/test_function.cl > target/test_function.ll
+llc target/test_function.ll > target/test_function.s
+cc -o target/test_function.exe target/test_function.s src/stdlib.o -lm
+target/test_function.exe
+diff -b target/test_function.out tests/test_function.out > target/test_function.diff
+###### SUCCESS
+
+###### Testing test_generate_song
+src/caml.native tests/test_generate_song.cl > target/test_generate_song.ll
+llc target/test_generate_song.ll > target/test_generate_song.s
+cc -o target/test_generate_song.exe target/test_generate_song.s src/stdlib.o -lm
+target/test_generate_song.exe
+diff -b target/test_generate_song.out tests/test_generate_song.out > target/test_generate_song.diff
+###### SUCCESS
+
+###### Testing test_multi_array_member_test
+src/caml.native tests/test_multi_array_member_test.cl > target/test_multi_array_member_test.ll
+llc target/test_multi_array_member_test.ll > target/test_multi_array_member_test.s
+cc -o target/test_multi_array_member_test.exe target/test_multi_array_member_test.s src/stdlib.o -lm
+target/test_multi_array_member_test.exe
+diff -b target/test_multi_array_member_test.out tests/test_multi_array_member_test.out > target/test_multi_array_member_test.diff
+###### SUCCESS
+
+###### Testing test_multiple_member_test
+src/caml.native tests/test_multiple_member_test.cl > target/test_multiple_member_test.ll
+llc target/test_multiple_member_test.ll > target/test_multiple_member_test.s
+cc -o target/test_multiple_member_test.exe target/test_multiple_member_test.s src/stdlib.o -lm
+target/test_multiple_member_test.exe
+diff -b target/test_multiple_member_test.out tests/test_multiple_member_test.out > target/test_multiple_member_test.diff
+###### SUCCESS
+
+###### Testing test_pitch2int
+src/caml.native tests/test_pitch2int.cl > target/test_pitch2int.ll
+llc target/test_pitch2int.ll > target/test_pitch2int.s
+cc -o target/test_pitch2int.exe target/test_pitch2int.s src/stdlib.o -lm
+target/test_pitch2int.exe
+diff -b target/test_pitch2int.out tests/test_pitch2int.out > target/test_pitch2int.diff
+###### SUCCESS
+
+###### Testing test_pitch_array_member_test
+src/caml.native tests/test_pitch_array_member_test.cl > target/test_pitch_array_member_test.ll
+llc target/test_pitch_array_member_test.ll > target/test_pitch_array_member_test.s
+cc -o target/test_pitch_array_member_test.exe target/test_pitch_array_member_test.s src/stdlib.o -lm
+target/test_pitch_array_member_test.exe
+diff -b target/test_pitch_array_member_test.out tests/test_pitch_array_member_test.out > target/test_pitch_array_member_test.diff
+###### SUCCESS
+
+###### Testing test_pitch_member_test
+src/caml.native tests/test_pitch_member_test.cl > target/test_pitch_member_test.ll
+llc target/test_pitch_member_test.ll > target/test_pitch_member_test.s
+cc -o target/test_pitch_member_test.exe target/test_pitch_member_test.s src/stdlib.o -lm
+target/test_pitch_member_test.exe
+diff -b target/test_pitch_member_test.out tests/test_pitch_member_test.out > target/test_pitch_member_test.diff
+###### SUCCESS
+
+###### Testing test_print_float
+src/caml.native tests/test_print_float.cl > target/test_print_float.ll
+llc target/test_print_float.ll > target/test_print_float.s
+cc -o target/test_print_float.exe target/test_print_float.s src/stdlib.o -lm
+target/test_print_float.exe
+diff -b target/test_print_float.out tests/test_print_float.out > target/test_print_float.diff
+###### SUCCESS
+
+###### Testing test_print_int
+src/caml.native tests/test_print_int.cl > target/test_print_int.ll
+llc target/test_print_int.ll > target/test_print_int.s
+cc -o target/test_print_int.exe target/test_print_int.s src/stdlib.o -lm
+target/test_print_int.exe
+diff -b target/test_print_int.out tests/test_print_int.out > target/test_print_int.diff
+###### SUCCESS
+
+###### Testing test_print_pitch
+src/caml.native tests/test_print_pitch.cl > target/test_print_pitch.ll
+llc target/test_print_pitch.ll > target/test_print_pitch.s
+cc -o target/test_print_pitch.exe target/test_print_pitch.s src/stdlib.o -lm
+target/test_print_pitch.exe
+diff -b target/test_print_pitch.out tests/test_print_pitch.out > target/test_print_pitch.diff
+###### SUCCESS
+
+###### Testing test_print_string
+src/caml.native tests/test_print_string.cl > target/test_print_string.ll
+llc target/test_print_string.ll > target/test_print_string.s
+cc -o target/test_print_string.exe target/test_print_string.s src/stdlib.o -lm
+target/test_print_string.exe
+diff -b target/test_print_string.out tests/test_print_string.out > target/test_print_string.diff
+###### SUCCESS
+
+###### Testing test_single_member_test
+src/caml.native tests/test_single_member_test.cl > target/test_single_member_test.ll
+llc target/test_single_member_test.ll > target/test_single_member_test.s
+cc -o target/test_single_member_test.exe target/test_single_member_test.s src/stdlib.o -lm
+target/test_single_member_test.exe
+diff -b target/test_single_member_test.out tests/test_single_member_test.out > target/test_single_member_test.diff
+###### SUCCESS
+
+###### Testing test_struct
+src/caml.native tests/test_struct.cl > target/test_struct.ll
+llc target/test_struct.ll > target/test_struct.s
+cc -o target/test_struct.exe target/test_struct.s src/stdlib.o -lm
+target/test_struct.exe
+diff -b target/test_struct.out tests/test_struct.out > target/test_struct.diff
+###### SUCCESS

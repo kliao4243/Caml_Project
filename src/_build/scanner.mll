@@ -1,5 +1,5 @@
 (* Ocamllex scanner for CAML *)
-
+(* Authors: Yuanji Huang, Kunjian Liao, Yipeng Zhang *)
 { open Parser }
 
 let digit = ['0' - '9']
