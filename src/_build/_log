@@ -1,16 +1,16 @@
 ### Starting build.
 # Target: caml.ml.depends, tags: { package(llvm), package(llvm.analysis), package(llvm.bitreader), extension:ml, file:caml.ml, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -package llvm.bitreader -package llvm.analysis -package llvm -modules caml.ml > caml.ml.depends # cached
+ocamlfind ocamldep -package llvm.bitreader -package llvm.analysis -package llvm -modules caml.ml > caml.ml.depends
 # Target: ast.ml.depends, tags: { package(llvm), package(llvm.analysis), package(llvm.bitreader), extension:ml, file:ast.ml, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -package llvm.bitreader -package llvm.analysis -package llvm -modules ast.ml > ast.ml.depends # cached
-# Target: ast.cmo, tags: { package(llvm), package(llvm.analysis), package(llvm.bitreader), byte, compile, extension:cmo, extension:ml, file:ast.cmo, file:ast.ml, implem, ocaml, quiet }
-ocamlfind ocamlc -c -w +a-4 -package llvm.bitreader -package llvm.analysis -package llvm -o ast.cmo ast.ml # cached
+ocamlfind ocamldep -package llvm.bitreader -package llvm.analysis -package llvm -modules ast.ml > ast.ml.depends
 # Target: codegen.ml.depends, tags: { package(llvm), package(llvm.analysis), package(llvm.bitreader), extension:ml, file:codegen.ml, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -package llvm.bitreader -package llvm.analysis -package llvm -modules codegen.ml > codegen.ml.depends # cached
+ocamlfind ocamldep -package llvm.bitreader -package llvm.analysis -package llvm -modules codegen.ml > codegen.ml.depends
+# Target: ast.cmo, tags: { package(llvm), package(llvm.analysis), package(llvm.bitreader), byte, compile, extension:cmo, extension:ml, file:ast.cmo, file:ast.ml, implem, ocaml, quiet }
+ocamlfind ocamlc -c -w +a-4 -package llvm.bitreader -package llvm.analysis -package llvm -o ast.cmo ast.ml
 # Target: sast.ml.depends, tags: { package(llvm), package(llvm.analysis), package(llvm.bitreader), extension:ml, file:sast.ml, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -package llvm.bitreader -package llvm.analysis -package llvm -modules sast.ml > sast.ml.depends # cached
+ocamlfind ocamldep -package llvm.bitreader -package llvm.analysis -package llvm -modules sast.ml > sast.ml.depends
 # Target: sast.cmo, tags: { package(llvm), package(llvm.analysis), package(llvm.bitreader), byte, compile, extension:cmo, extension:ml, file:sast.cmo, file:sast.ml, implem, ocaml, quiet }
-ocamlfind ocamlc -c -w +a-4 -package llvm.bitreader -package llvm.analysis -package llvm -o sast.cmo sast.ml # cached
+ocamlfind ocamlc -c -w +a-4 -package llvm.bitreader -package llvm.analysis -package llvm -o sast.cmo sast.ml
 # Target: parser.mly, tags: { package(llvm), package(llvm.analysis), package(llvm.bitreader), extension:mly, file:parser.mly, infer, ocaml, ocamlyacc, parser, quiet }
 ocamlyacc parser.mly
 # Target: parser.mli.depends, tags: { package(llvm), package(llvm.analysis), package(llvm.bitreader), extension:mli, file:parser.mli, ocaml, ocamldep, quiet }
