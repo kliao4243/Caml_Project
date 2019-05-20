@@ -1,4 +1,28 @@
-/usr/local/opt/llvm/bin/lli
+/usr/bin/lli
+
+###### Testing test_assign
+src/caml.native tests/test_assign.cl > target/test_assign.ll
+llc target/test_assign.ll > target/test_assign.s
+cc -o target/test_assign.exe target/test_assign.s src/stdlib.o -lm
+target/test_assign.exe
+diff -b target/test_assign.out tests/test_assign.out > target/test_assign.diff
+###### SUCCESS
+
+###### Testing test_assign_array
+src/caml.native tests/test_assign_array.cl > target/test_assign_array.ll
+llc target/test_assign_array.ll > target/test_assign_array.s
+cc -o target/test_assign_array.exe target/test_assign_array.s src/stdlib.o -lm
+target/test_assign_array.exe
+diff -b target/test_assign_array.out tests/test_assign_array.out > target/test_assign_array.diff
+###### SUCCESS
+
+###### Testing test_assign_array2
+src/caml.native tests/test_assign_array2.cl > target/test_assign_array2.ll
+llc target/test_assign_array2.ll > target/test_assign_array2.s
+cc -o target/test_assign_array2.exe target/test_assign_array2.s src/stdlib.o -lm
+target/test_assign_array2.exe
+diff -b target/test_assign_array2.out tests/test_assign_array2.out > target/test_assign_array2.diff
+###### SUCCESS
 
 ###### Testing test_assign_float
 src/caml.native tests/test_assign_float.cl > target/test_assign_float.ll
@@ -40,6 +64,38 @@ target/test_build_track.exe
 diff -b target/test_build_track.out tests/test_build_track.out > target/test_build_track.diff
 ###### SUCCESS
 
+###### Testing test_concat_array
+src/caml.native tests/test_concat_array.cl > target/test_concat_array.ll
+llc target/test_concat_array.ll > target/test_concat_array.s
+cc -o target/test_concat_array.exe target/test_concat_array.s src/stdlib.o -lm
+target/test_concat_array.exe
+diff -b target/test_concat_array.out tests/test_concat_array.out > target/test_concat_array.diff
+###### SUCCESS
+
+###### Testing test_concat_array2
+src/caml.native tests/test_concat_array2.cl > target/test_concat_array2.ll
+llc target/test_concat_array2.ll > target/test_concat_array2.s
+cc -o target/test_concat_array2.exe target/test_concat_array2.s src/stdlib.o -lm
+target/test_concat_array2.exe
+diff -b target/test_concat_array2.out tests/test_concat_array2.out > target/test_concat_array2.diff
+###### SUCCESS
+
+###### Testing test_concat_array3
+src/caml.native tests/test_concat_array3.cl > target/test_concat_array3.ll
+llc target/test_concat_array3.ll > target/test_concat_array3.s
+cc -o target/test_concat_array3.exe target/test_concat_array3.s src/stdlib.o -lm
+target/test_concat_array3.exe
+diff -b target/test_concat_array3.out tests/test_concat_array3.out > target/test_concat_array3.diff
+###### SUCCESS
+
+###### Testing test_concat_array4
+src/caml.native tests/test_concat_array4.cl > target/test_concat_array4.ll
+llc target/test_concat_array4.ll > target/test_concat_array4.s
+cc -o target/test_concat_array4.exe target/test_concat_array4.s src/stdlib.o -lm
+target/test_concat_array4.exe
+diff -b target/test_concat_array4.out tests/test_concat_array4.out > target/test_concat_array4.diff
+###### SUCCESS
+
 ###### Testing test_entertainer
 src/caml.native tests/test_entertainer.cl > target/test_entertainer.ll
 llc target/test_entertainer.ll > target/test_entertainer.s
@@ -62,6 +118,14 @@ llc target/test_generate_song.ll > target/test_generate_song.s
 cc -o target/test_generate_song.exe target/test_generate_song.s src/stdlib.o -lm
 target/test_generate_song.exe
 diff -b target/test_generate_song.out tests/test_generate_song.out > target/test_generate_song.diff
+###### SUCCESS
+
+###### Testing test_modify_array
+src/caml.native tests/test_modify_array.cl > target/test_modify_array.ll
+llc target/test_modify_array.ll > target/test_modify_array.s
+cc -o target/test_modify_array.exe target/test_modify_array.s src/stdlib.o -lm
+target/test_modify_array.exe
+diff -b target/test_modify_array.out tests/test_modify_array.out > target/test_modify_array.diff
 ###### SUCCESS
 
 ###### Testing test_multi_array_member_test
